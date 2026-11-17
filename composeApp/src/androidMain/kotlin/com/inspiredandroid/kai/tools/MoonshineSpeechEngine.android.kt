@@ -209,8 +209,11 @@ internal suspend fun captureSpeech(
                     chunk.copyInto(captured, capturedSamples, 0, read)
                     capturedSamples += read
                 }
+
                 read == AudioRecord.ERROR_INVALID_OPERATION && stopRequested.get() -> break
+
                 read == AudioRecord.ERROR_DEAD_OBJECT -> throw IOException("The microphone connection was lost.")
+
                 read < 0 -> throw IOException("Audio capture stopped unexpectedly.")
             }
         }
