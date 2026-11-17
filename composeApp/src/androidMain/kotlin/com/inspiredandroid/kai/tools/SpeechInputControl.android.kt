@@ -179,7 +179,7 @@ actual fun SpeechInputControl(
                             activeStopRequest.compareAndSet(operationStopRequest, null)
                             jobReference.compareAndSet(currentCoroutineContext()[Job], null)
                         }
-                        }
+                    }
                     // Publish the operation-specific cancellation signal and lazy job before
                     // starting it, so an older operation can never clear a newer one.
                     activeStopRequest.set(operationStopRequest)
