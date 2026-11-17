@@ -147,25 +147,24 @@ actual fun SpeechInputControl(
                                 return@launch
                             }
 
-                            voiceSession = voiceCoordinator.begin(
+                            val acquiredSession = voiceCoordinator.begin(
                                 mode = VoiceInteractionMode.DICTATION,
                                 target = VoiceInputTarget.ChatComposer,
                             )
-                            if (voiceSession == null) {
+                            if (acquiredSession == null) {
                                 state = SpeechInputState.Error
                                 status = errorText
                                 return@launch
                             }
-                            val sessionId = voiceSession.id
+                            voiceSession = acquiredSession
+                            val sessionId = acquiredSession.id
                             status = recordingText
                             val samples = captureSpeech(
                                 stopRequested = operationStopRequest,
                                 recorderReference = recorderReference,
                                 onStarted = {
                                     state = SpeechInputState.Recording
-                                    scope.launch {
-                                        voiceCoordinator.updatePhase(sessionId, VoiceSessionPhase.LISTENING)
-                                    }
+                                    voiceCoordinator.updatePhase(sessionId, VoiceSessionPhase.LISTENING)
                                 },
                             )
                             capturedSamples = samples

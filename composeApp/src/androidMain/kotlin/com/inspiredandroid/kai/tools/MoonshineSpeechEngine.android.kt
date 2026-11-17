@@ -165,7 +165,7 @@ internal class MoonshineModelStore(context: android.content.Context) {
 internal suspend fun captureSpeech(
     stopRequested: AtomicBoolean,
     recorderReference: AtomicReference<AudioRecord?>,
-    onStarted: () -> Unit,
+    onStarted: suspend () -> Unit,
 ): FloatArray = withContext(Dispatchers.IO) {
     val minimumBufferBytes = AudioRecord.getMinBufferSize(
         SPEECH_SAMPLE_RATE,
