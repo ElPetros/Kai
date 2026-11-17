@@ -197,7 +197,8 @@ fun QuestionInput(
         }
 
         val focusRequester = remember { FocusRequester() }
-        if (currentPlatform is Platform.Mobile.Android) {
+        val inInspection = LocalInspectionMode.current
+        if (currentPlatform is Platform.Mobile.Android && !inInspection) {
             SpeechInputControl(
                 onTranscript = onSpeechTranscript,
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -294,7 +295,6 @@ fun QuestionInput(
                 imeAction = if (currentPlatform is Platform.Mobile) ImeAction.Default else ImeAction.Send,
             ),
         )
-        val inInspection = LocalInspectionMode.current
         LaunchedEffect(Unit) {
             if (!inInspection) focusRequester.requestFocus()
         }
