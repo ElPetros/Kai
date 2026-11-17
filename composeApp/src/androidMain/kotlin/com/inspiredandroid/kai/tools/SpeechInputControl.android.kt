@@ -11,6 +11,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,6 +65,7 @@ actual fun SpeechInputControl(
         permissionQualifier(AppPermission.RECORD_AUDIO),
     )
     val scope = rememberCoroutineScope()
+    val lifecycleOwner = LocalLifecycleOwner.current
     val modelStore = remember(context) { MoonshineModelStore(context) }
     val stopRequested = remember { AtomicBoolean(false) }
     val recorderReference = remember { AtomicReference<AudioRecord?>(null) }
@@ -91,8 +95,19 @@ actual fun SpeechInputControl(
         }
     }
 
-    DisposableEffect(Unit) {
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) {
+                // Do not leave the microphone active when Kai moves to the background.
+                stopRecording()
+                jobReference.getAndSet(null)?.cancel()
+                state = SpeechInputState.Idle
+                status = ""
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
             stopRecording()
             jobReference.getAndSet(null)?.cancel()
         }
@@ -110,6 +125,7 @@ actual fun SpeechInputControl(
                 } else {
                     jobReference.set(
                         scope.launch {
+                            var capturedSamples: FloatArray? = null
                             try {
                                 state = SpeechInputState.Preparing
                                 if (!permissionController.hasPermission() &&
@@ -135,6 +151,7 @@ actual fun SpeechInputControl(
                                     recorderReference = recorderReference,
                                     onStarted = { state = SpeechInputState.Recording },
                                 )
+                                capturedSamples = samples
 
                                 state = SpeechInputState.Transcribing
                                 status = transcribingText
@@ -155,6 +172,9 @@ actual fun SpeechInputControl(
                                 state = SpeechInputState.Error
                                 status = errorText
                             } finally {
+                                // Audio exists only for this operation. Wipe the PCM
+                                // supplied to the recognizer on success, failure, or cancel.
+                                capturedSamples?.fill(0.0f)
                                 stopRequested.set(false)
                                 jobReference.set(null)
                             }
