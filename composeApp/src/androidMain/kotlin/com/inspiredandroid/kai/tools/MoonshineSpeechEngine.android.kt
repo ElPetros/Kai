@@ -217,18 +217,22 @@ internal suspend fun captureSpeech(
                 read < 0 -> throw IOException("Audio capture stopped unexpectedly.")
             }
         }
+
+        if (capturedSamples < SPEECH_SAMPLE_RATE / 3) {
+            throw IOException("The recording was too short. Try speaking for a little longer.")
+        }
+        FloatArray(capturedSamples) { captured[it] / 32768.0f }
     } finally {
+        // The short PCM buffers are transient and must not remain populated after
+        // capture, including when recording is interrupted or throws.
+        captured.fill(0)
+        chunk.fill(0)
         recorderReference.compareAndSet(recorder, null)
         if (recorder.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
             runCatching { recorder.stop() }
         }
         recorder.release()
     }
-
-    if (capturedSamples < SPEECH_SAMPLE_RATE / 3) {
-        throw IOException("The recording was too short. Try speaking for a little longer.")
-    }
-    FloatArray(capturedSamples) { captured[it] / 32768.0f }
 }
 
 internal fun transcribeMoonshineV2(modelDirectory: File, samples: FloatArray): String {
