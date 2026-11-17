@@ -36,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,6 +62,7 @@ import com.inspiredandroid.kai.currentPlatform
 import com.inspiredandroid.kai.data.ServiceEntry
 import com.inspiredandroid.kai.data.imageExtensions
 import com.inspiredandroid.kai.skills.SkillManifest
+import com.inspiredandroid.kai.tools.SpeechInputControl
 import com.inspiredandroid.kai.ui.gradientBrush
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.outlineTextFieldColors
@@ -99,6 +101,14 @@ fun QuestionInput(
     installedSkills: ImmutableList<SkillManifest> = persistentListOf(),
     modifier: Modifier = Modifier,
 ) {
+    val latestTextState = rememberUpdatedState(textState)
+    val latestOnTextStateChange = rememberUpdatedState(onTextStateChange)
+    val onSpeechTranscript: (String) -> Unit = remember {
+        { transcript ->
+            latestOnTextStateChange.value(insertTranscript(latestTextState.value, transcript))
+        }
+    }
+
     Column(modifier = modifier) {
         // Slash autocomplete: shown when the user is typing the first token and it starts
         // with `/`. Selecting an entry rewrites the first token to the canonical skill id
@@ -187,6 +197,12 @@ fun QuestionInput(
         }
 
         val focusRequester = remember { FocusRequester() }
+        if (currentPlatform is Platform.Mobile.Android) {
+            SpeechInputControl(
+                onTranscript = onSpeechTranscript,
+                modifier = Modifier.padding(horizontal = 16.dp),
+            )
+        }
         // The cap is expressed in dp but bounds a number of text lines, so it has to
         // grow with the font scale — otherwise the composer shows a single line of
         // what the user is typing at the largest accessibility font size.
@@ -283,6 +299,30 @@ fun QuestionInput(
             if (!inInspection) focusRequester.requestFocus()
         }
     }
+}
+
+/**
+ * Inserts recognized speech at the current selection without replacing text the user
+ * entered while recording. The returned selection is placed immediately after the
+ * inserted transcript so the user can continue editing.
+ */
+internal fun insertTranscript(current: TextFieldValue, transcript: String): TextFieldValue {
+    val recognizedText = transcript.trim()
+    if (recognizedText.isEmpty()) return current
+
+    val text = current.text
+    val start = minOf(current.selection.start, current.selection.end).coerceIn(0, text.length)
+    val end = maxOf(current.selection.start, current.selection.end).coerceIn(0, text.length)
+    val prefix = text.substring(0, start)
+    val suffix = text.substring(end)
+    val leadingSpace = if (prefix.isNotEmpty() && !prefix.last().isWhitespace()) " " else ""
+    val trailingSpace = if (suffix.isNotEmpty() && !suffix.first().isWhitespace()) " " else ""
+    val insertion = "$leadingSpace$recognizedText$trailingSpace"
+
+    return TextFieldValue(
+        text = prefix + insertion + suffix,
+        selection = TextRange(prefix.length + leadingSpace.length + recognizedText.length),
+    )
 }
 
 /**

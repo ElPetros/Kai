@@ -513,4 +513,15 @@
     <string name="terminal_sandbox_not_ready">Sandbox is not ready</string>
     <string name="chat_edit_submission_content_description">Edit submission</string>
     <string name="chat_cancel_edit_content_description">Cancel edit</string>
+    <string name="speech_input_label">Voice input · English, offline</string>
+    <string name="speech_input_start">Start voice input</string>
+    <string name="speech_input_stop">Stop recording</string>
+    <string name="speech_input_preparing">Preparing offline speech model…</string>
+    <string name="speech_input_model_ready">Offline model ready. Tap the microphone to record.</string>
+    <string name="speech_input_recording">Recording. Tap stop when you’re finished.</string>
+    <string name="speech_input_transcribing">Transcribing on this device…</string>
+    <string name="speech_input_added">Transcript added. Review it before sending.</string>
+    <string name="speech_input_no_speech">No speech was recognized. Try again.</string>
+    <string name="speech_input_permission_denied">Microphone permission was not granted.</string>
+    <string name="speech_input_error">Voice input failed. Please try again.</string>
 </resources>
