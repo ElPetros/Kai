@@ -22,6 +22,15 @@ The first code/documentation pass found that the feature should be built around 
 
 These findings make Phase 1 more concrete: implement first in Kai Build's Android session model, preserve the chat sandbox as a separate future integration, and do not expose a permission switch until the corresponding execution path is actually enforced.
 
+### Implementation constraints confirmed by the code audit
+
+- Kai Build's session ids are currently generated in memory by a process-local counter (for example, `s1`). They are suitable for routing while the manager is alive, but are not yet durable identities across app process restarts. Context persistence must introduce a durable session identity or a carefully versioned mapping; it must not assume the current counter is stable.
+- The session manager currently retains live PTYs and per-session VT screen state in memory. The project/session lifecycle already has explicit `startSession`, `selectSession`, `resumeProject`, `leaveProject`, and close paths. These are the natural points for recording activity timestamps and detecting a genuine return.
+- The visible terminal snapshot is a bounded cell grid. It is not a complete transcript or structured command journal. Context capture should begin with a bounded, redacted event stream collected at the session boundary, with explicit provenance and timestamps, rather than trying to reconstruct a complete history from the rendered screen.
+- The Android chat sandbox also exposes an `execute_shell_command` AI tool, but it is a separate per-conversation shell path. Its tool-execution boundary will need its own authorization integration if the feature is later extended beyond Kai Build.
+- Kai Build starts interactive third-party coding-agent CLIs inside a PTY. Their internal tool calls do not necessarily pass through Kai's ordinary chat tool executor. Each agent's native permission/sandbox capabilities must be audited individually; the app must not claim to enforce write/execute restrictions merely because it has disabled a Kai chat tool.
+- Kai Build is currently Android-only. The first implementation should stay within its existing Android actual/controller boundary and leave common desktop, iOS, and web behavior unchanged.
+
 ## Product model
 
 Three cooperating capabilities share one context model:
