@@ -27,7 +27,7 @@ dependencyResolutionManagement {
         mavenCentral()
         maven("https://jitpack.io") {
             content {
-                includeGroup("com.github.k2-fsa")
+                includeGroupAndSubgroups("com.github.k2-fsa")
             }
         }
     }
