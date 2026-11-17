@@ -262,7 +262,7 @@ fun QuestionInput(
                         )
                     }
                     if (currentPlatform is Platform.Mobile.Android && !inInspection) {
-                        SpeechInputControl(onTranscript = onSpeechTranscript)
+                        SpeechInputControl(onTranscript = onSpeechTranscript, modifier = Modifier)
                     }
                     if (isLoading) {
                         TrailingIcon(icon = Res.drawable.ic_stop, onClick = cancel, isPulsing = true)
