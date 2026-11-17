@@ -31,4 +31,6 @@ The sherpa-onnx Android AAR is a multi-ABI package (approximately 47.2 MB in the
 
 Moonshine's published quantized Tiny Streaming results report 4.83% WER on LibriSpeech test-clean and a 12.00% average on the Open ASR Leaderboard's eight-dataset evaluation. These figures use different evaluation sets and should not be compared as if they were the same test. They are reference results, not a promise of accuracy on noisy rooms, overlapping speech, spontaneous conversation, names, or every accent.
 
+The model is an initial lightweight candidate, not a final accuracy winner. See [the speech-engine evaluation](speech-engine-evaluation.md) for the comparison with Vosk and whisper.cpp and the next same-dataset benchmark target.
+
 This first version is a bounded, stop-to-transcribe workflow. It does not yet provide live partial results, voice activity detection, automatic language detection, or a second-pass verifier. Those features should be added only after device testing shows a clear benefit.
