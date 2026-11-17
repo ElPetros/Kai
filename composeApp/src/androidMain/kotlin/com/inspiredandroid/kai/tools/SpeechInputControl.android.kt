@@ -38,9 +38,9 @@ import kai.composeapp.generated.resources.speech_input_stop
 import kai.composeapp.generated.resources.speech_input_transcribing
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.stringResource
@@ -127,58 +127,58 @@ actual fun SpeechInputControl(
                 } else {
                     val operationStopRequest = AtomicBoolean(false)
                     val speechJob = scope.launch(start = CoroutineStart.LAZY) {
-                            var capturedSamples: FloatArray? = null
-                            try {
-                                state = SpeechInputState.Preparing
-                                if (!permissionController.hasPermission() &&
-                                    !permissionController.requestPermission()
-                                ) {
-                                    state = SpeechInputState.Error
-                                    status = permissionDeniedText
-                                    return@launch
-                                }
-
-                                if (!modelStore.isInstalled()) {
-                                    status = preparingText
-                                    modelStore.ensureInstalled()
-                                    state = SpeechInputState.Ready
-                                    status = modelReadyText
-                                    return@launch
-                                }
-
-                                status = recordingText
-                                val samples = captureSpeech(
-                                    stopRequested = operationStopRequest,
-                                    recorderReference = recorderReference,
-                                    onStarted = { state = SpeechInputState.Recording },
-                                )
-                                capturedSamples = samples
-
-                                state = SpeechInputState.Transcribing
-                                status = transcribingText
-                                val transcript = withContext(Dispatchers.Default) {
-                                    transcribeMoonshineV2(modelStore.modelDirectory, samples)
-                                }
-                                if (transcript.isBlank()) {
-                                    state = SpeechInputState.Ready
-                                    status = noSpeechText
-                                } else {
-                                    onTranscript(transcript)
-                                    state = SpeechInputState.Ready
-                                    status = addedText
-                                }
-                            } catch (cancelled: CancellationException) {
-                                throw cancelled
-                            } catch (_: Exception) {
+                        var capturedSamples: FloatArray? = null
+                        try {
+                            state = SpeechInputState.Preparing
+                            if (!permissionController.hasPermission() &&
+                                !permissionController.requestPermission()
+                            ) {
                                 state = SpeechInputState.Error
-                                status = errorText
-                            } finally {
-                                // Audio exists only for this operation. Wipe the PCM
-                                // supplied to the recognizer on success, failure, or cancel.
-                                capturedSamples?.fill(0.0f)
-                                activeStopRequest.compareAndSet(operationStopRequest, null)
-                                jobReference.compareAndSet(currentCoroutineContext()[Job], null)
+                                status = permissionDeniedText
+                                return@launch
                             }
+
+                            if (!modelStore.isInstalled()) {
+                                status = preparingText
+                                modelStore.ensureInstalled()
+                                state = SpeechInputState.Ready
+                                status = modelReadyText
+                                return@launch
+                            }
+
+                            status = recordingText
+                            val samples = captureSpeech(
+                                stopRequested = operationStopRequest,
+                                recorderReference = recorderReference,
+                                onStarted = { state = SpeechInputState.Recording },
+                            )
+                            capturedSamples = samples
+
+                            state = SpeechInputState.Transcribing
+                            status = transcribingText
+                            val transcript = withContext(Dispatchers.Default) {
+                                transcribeMoonshineV2(modelStore.modelDirectory, samples)
+                            }
+                            if (transcript.isBlank()) {
+                                state = SpeechInputState.Ready
+                                status = noSpeechText
+                            } else {
+                                onTranscript(transcript)
+                                state = SpeechInputState.Ready
+                                status = addedText
+                            }
+                        } catch (cancelled: CancellationException) {
+                            throw cancelled
+                        } catch (_: Exception) {
+                            state = SpeechInputState.Error
+                            status = errorText
+                        } finally {
+                            // Audio exists only for this operation. Wipe the PCM
+                            // supplied to the recognizer on success, failure, or cancel.
+                            capturedSamples?.fill(0.0f)
+                            activeStopRequest.compareAndSet(operationStopRequest, null)
+                            jobReference.compareAndSet(currentCoroutineContext()[Job], null)
+                        }
                         }
                     // Publish the operation-specific cancellation signal and lazy job before
                     // starting it, so an older operation can never clear a newer one.
