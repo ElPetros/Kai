@@ -6,6 +6,22 @@ Give Kai users a reliable way to return to a terminal session and recover their 
 
 This document is an initial architecture proposal. It does not claim that terminal monitoring, multi-terminal orchestration, biometric approval, or native real-time conversation already exists.
 
+## First repository audit: existing Kai Build foundation
+
+The first code/documentation pass found that the feature should be built around **Kai Build**, not by inventing a new terminal abstraction:
+
+- Kai Build is Android-only and has a project list with multiple live shell tabs per project.
+- `BuildTerminalSession` already carries a stable session id, project name, agent id, tab number, terminal snapshot, and busy state.
+- `BuildEnvironmentManager` owns the process-scoped session map, active session, project foreground/resume/leave lifecycle, PTY handles, and screen snapshots.
+- Each session has its own PTY, screen, geometry, and output stream. Background sessions continue running while another project is open.
+- The existing terminal UI already switches between independent sessions. The first master dashboard can therefore manage these existing sessions rather than create another terminal system.
+- Kai Build's project sessions are separate from the chat Linux Sandbox's per-conversation persistent shells. They can share the same Debian install in some configurations, but their session identity and lifecycle are different. They must not be conflated.
+- The current `TerminalSnapshot` is a rendered screen snapshot, not yet a structured, durable work journal. A useful context engine will need a bounded per-session event/context buffer and lifecycle timestamps; it must not pretend the visible screen alone proves all prior work.
+- Kai Build launches Claude Code, Grok, and OpenCode as interactive processes inside the PTY. This creates a distinct enforcement boundary: guarding Kai's own shell/tool dispatch is not enough if a coding agent can invoke its own tools or subprocesses. Before enabling write/execute controls, the implementation must determine and enforce each supported agent's own permission mode or place an effective policy boundary around its execution. If a given agent cannot be safely constrained, Kai must clearly disable that agent's autonomous write/execute capability rather than display a misleading permission toggle.
+- Direct commands typed by the user into their own terminal are user-operated terminal activity. The authorization gate described here is for actions initiated by Kai or an AI agent under Kai's delegated authority; the UI must make that distinction clear. Users may optionally enable stricter interception of manually entered commands, but it must not be confused with the default AI authorization gate.
+
+These findings make Phase 1 more concrete: implement first in Kai Build's Android session model, preserve the chat sandbox as a separate future integration, and do not expose a permission switch until the corresponding execution path is actually enforced.
+
 ## Product model
 
 Three cooperating capabilities share one context model:
