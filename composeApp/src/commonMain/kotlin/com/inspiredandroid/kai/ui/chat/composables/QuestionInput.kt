@@ -198,12 +198,6 @@ fun QuestionInput(
 
         val focusRequester = remember { FocusRequester() }
         val inInspection = LocalInspectionMode.current
-        if (currentPlatform is Platform.Mobile.Android && !inInspection) {
-            SpeechInputControl(
-                onTranscript = onSpeechTranscript,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
         // The cap is expressed in dp but bounds a number of text lines, so it has to
         // grow with the font scale — otherwise the composer shows a single line of
         // what the user is typing at the largest accessibility font size.
@@ -266,6 +260,9 @@ fun QuestionInput(
                             services = availableServices,
                             onSelectService = onSelectService,
                         )
+                    }
+                    if (currentPlatform is Platform.Mobile.Android && !inInspection) {
+                        SpeechInputControl(onTranscript = onSpeechTranscript)
                     }
                     if (isLoading) {
                         TrailingIcon(icon = Res.drawable.ic_stop, onClick = cancel, isPulsing = true)

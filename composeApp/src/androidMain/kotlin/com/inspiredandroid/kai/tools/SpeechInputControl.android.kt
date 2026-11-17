@@ -2,7 +2,6 @@ package com.inspiredandroid.kai.tools
 
 import android.media.AudioRecord
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Stop
@@ -27,7 +26,6 @@ import com.inspiredandroid.kai.permissionQualifier
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.speech_input_added
 import kai.composeapp.generated.resources.speech_input_error
-import kai.composeapp.generated.resources.speech_input_label
 import kai.composeapp.generated.resources.speech_input_model_ready
 import kai.composeapp.generated.resources.speech_input_no_speech
 import kai.composeapp.generated.resources.speech_input_permission_denied
@@ -76,7 +74,6 @@ actual fun SpeechInputControl(
     var state by remember { mutableStateOf(SpeechInputState.Idle) }
     var status by remember { mutableStateOf("") }
 
-    val label = stringResource(Res.string.speech_input_label)
     val startDescription = stringResource(Res.string.speech_input_start)
     val stopDescription = stringResource(Res.string.speech_input_stop)
     val preparingText = stringResource(Res.string.speech_input_preparing)
@@ -116,7 +113,7 @@ actual fun SpeechInputControl(
     }
 
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(
@@ -194,14 +191,16 @@ actual fun SpeechInputControl(
                 tint = if (state == SpeechInputState.Recording) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
             )
         }
-        Text(
-            text = status.ifBlank { label },
-            style = MaterialTheme.typography.bodySmall,
-            color = if (state == SpeechInputState.Error) {
-                MaterialTheme.colorScheme.error
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            },
-        )
+        if (status.isNotBlank()) {
+            Text(
+                text = status,
+                style = MaterialTheme.typography.bodySmall,
+                color = if (state == SpeechInputState.Error) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+            )
+        }
     }
 }
