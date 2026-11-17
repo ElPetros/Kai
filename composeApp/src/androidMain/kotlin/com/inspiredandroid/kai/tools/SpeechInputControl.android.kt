@@ -37,6 +37,8 @@ import kai.composeapp.generated.resources.speech_input_start
 import kai.composeapp.generated.resources.speech_input_stop
 import kai.composeapp.generated.resources.speech_input_transcribing
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -67,7 +69,7 @@ actual fun SpeechInputControl(
     val scope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
     val modelStore = remember(context) { MoonshineModelStore(context) }
-    val stopRequested = remember { AtomicBoolean(false) }
+    val activeStopRequest = remember { AtomicReference<AtomicBoolean?>(null) }
     val recorderReference = remember { AtomicReference<AudioRecord?>(null) }
     val jobReference = remember { AtomicReference<Job?>(null) }
 
@@ -87,7 +89,7 @@ actual fun SpeechInputControl(
     val errorText = stringResource(Res.string.speech_input_error)
 
     fun stopRecording() {
-        stopRequested.set(true)
+        activeStopRequest.get()?.set(true)
         recorderReference.get()?.let { recorder ->
             if (recorder.recordingState == AudioRecord.RECORDSTATE_RECORDING) {
                 runCatching { recorder.stop() }
@@ -123,8 +125,8 @@ actual fun SpeechInputControl(
                 if (state == SpeechInputState.Recording) {
                     stopRecording()
                 } else {
-                    jobReference.set(
-                        scope.launch {
+                    val operationStopRequest = AtomicBoolean(false)
+                    val speechJob = scope.launch(start = CoroutineStart.LAZY) {
                             var capturedSamples: FloatArray? = null
                             try {
                                 state = SpeechInputState.Preparing
@@ -144,10 +146,9 @@ actual fun SpeechInputControl(
                                     return@launch
                                 }
 
-                                stopRequested.set(false)
                                 status = recordingText
                                 val samples = captureSpeech(
-                                    stopRequested = stopRequested,
+                                    stopRequested = operationStopRequest,
                                     recorderReference = recorderReference,
                                     onStarted = { state = SpeechInputState.Recording },
                                 )
@@ -175,11 +176,15 @@ actual fun SpeechInputControl(
                                 // Audio exists only for this operation. Wipe the PCM
                                 // supplied to the recognizer on success, failure, or cancel.
                                 capturedSamples?.fill(0.0f)
-                                stopRequested.set(false)
-                                jobReference.set(null)
+                                activeStopRequest.compareAndSet(operationStopRequest, null)
+                                jobReference.compareAndSet(currentCoroutineContext()[Job], null)
                             }
-                        },
-                    )
+                        }
+                    // Publish the operation-specific cancellation signal and lazy job before
+                    // starting it, so an older operation can never clear a newer one.
+                    activeStopRequest.set(operationStopRequest)
+                    jobReference.set(speechJob)
+                    speechJob.start()
                 }
             },
         ) {
