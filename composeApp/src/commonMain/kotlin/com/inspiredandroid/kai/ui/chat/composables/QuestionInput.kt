@@ -63,6 +63,7 @@ import com.inspiredandroid.kai.data.ServiceEntry
 import com.inspiredandroid.kai.data.imageExtensions
 import com.inspiredandroid.kai.skills.SkillManifest
 import com.inspiredandroid.kai.tools.SpeechInputControl
+import com.inspiredandroid.kai.tools.VoiceInputTarget
 import com.inspiredandroid.kai.ui.gradientBrush
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.outlineTextFieldColors
@@ -262,7 +263,7 @@ fun QuestionInput(
                         )
                     }
                     if (currentPlatform is Platform.Mobile.Android && !inInspection) {
-                        SpeechInputControl(onTranscript = onSpeechTranscript, modifier = Modifier)
+                        SpeechInputControl(onTranscript = onSpeechTranscript, target = VoiceInputTarget.ChatComposer, modifier = Modifier)
                     }
                     if (isLoading) {
                         TrailingIcon(icon = Res.drawable.ic_stop, onClick = cancel, isPulsing = true)

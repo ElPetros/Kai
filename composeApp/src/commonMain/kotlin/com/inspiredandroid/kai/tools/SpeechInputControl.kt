@@ -10,5 +10,6 @@ import androidx.compose.ui.Modifier
 @Composable
 expect fun SpeechInputControl(
     onTranscript: (String) -> Unit,
+    target: VoiceInputTarget,
     modifier: Modifier,
 )

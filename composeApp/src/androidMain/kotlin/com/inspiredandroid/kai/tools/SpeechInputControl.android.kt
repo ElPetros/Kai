@@ -60,6 +60,7 @@ private enum class SpeechInputState {
 @Composable
 actual fun SpeechInputControl(
     onTranscript: (String) -> Unit,
+    target: VoiceInputTarget,
     modifier: Modifier,
 ) {
     val context = LocalContext.current.applicationContext
@@ -149,7 +150,7 @@ actual fun SpeechInputControl(
 
                             val acquiredSession = voiceCoordinator.begin(
                                 mode = VoiceInteractionMode.DICTATION,
-                                target = VoiceInputTarget.ChatComposer,
+                                target = target,
                             )
                             if (acquiredSession == null) {
                                 state = SpeechInputState.Error
