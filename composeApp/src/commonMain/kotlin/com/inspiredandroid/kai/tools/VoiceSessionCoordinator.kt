@@ -102,16 +102,15 @@ class VoiceSessionCoordinator {
      *
      * A delayed callback from an ended session cannot update a newer session.
      */
-    suspend fun updatePhase(sessionId: Long, phase: VoiceSessionPhase): Boolean =
-        mutex.withLock {
-            val current = mutableActiveSession.value
-            if (current == null || current.id != sessionId) {
-                return@withLock false
-            }
-
-            mutableActiveSession.value = current.copy(phase = phase)
-            true
+    suspend fun updatePhase(sessionId: Long, phase: VoiceSessionPhase): Boolean = mutex.withLock {
+        val current = mutableActiveSession.value
+        if (current == null || current.id != sessionId) {
+            return@withLock false
         }
+
+        mutableActiveSession.value = current.copy(phase = phase)
+        true
+    }
 
     /** Ends only the matching session; stale stop/cancel callbacks are ignored. */
     suspend fun end(sessionId: Long): Boolean = mutex.withLock {
