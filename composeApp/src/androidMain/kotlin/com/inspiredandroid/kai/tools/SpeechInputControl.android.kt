@@ -23,6 +23,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.inspiredandroid.kai.permissionQualifier
+import com.inspiredandroid.kai.tools.VoiceSessionCoordinator
 import kai.composeapp.generated.resources.Res
 import kai.composeapp.generated.resources.speech_input_added
 import kai.composeapp.generated.resources.speech_input_error
@@ -37,6 +38,7 @@ import kai.composeapp.generated.resources.speech_input_transcribing
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
@@ -64,6 +66,7 @@ actual fun SpeechInputControl(
     val permissionController = koinInject<PermissionController>(
         permissionQualifier(AppPermission.RECORD_AUDIO),
     )
+    val voiceCoordinator = koinInject<VoiceSessionCoordinator>()
     val scope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
     val modelStore = remember(context) { MoonshineModelStore(context) }
@@ -125,6 +128,7 @@ actual fun SpeechInputControl(
                     val operationStopRequest = AtomicBoolean(false)
                     val speechJob = scope.launch(start = CoroutineStart.LAZY) {
                         var capturedSamples: FloatArray? = null
+                        var voiceSession: VoiceSession? = null
                         try {
                             state = SpeechInputState.Preparing
                             if (!permissionController.hasPermission() &&
@@ -143,14 +147,30 @@ actual fun SpeechInputControl(
                                 return@launch
                             }
 
+                            voiceSession = voiceCoordinator.begin(
+                                mode = VoiceInteractionMode.DICTATION,
+                                target = VoiceInputTarget.ChatComposer,
+                            )
+                            if (voiceSession == null) {
+                                state = SpeechInputState.Error
+                                status = errorText
+                                return@launch
+                            }
+                            val sessionId = voiceSession.id
                             status = recordingText
                             val samples = captureSpeech(
                                 stopRequested = operationStopRequest,
                                 recorderReference = recorderReference,
-                                onStarted = { state = SpeechInputState.Recording },
+                                onStarted = {
+                                    state = SpeechInputState.Recording
+                                    scope.launch {
+                                        voiceCoordinator.updatePhase(sessionId, VoiceSessionPhase.LISTENING)
+                                    }
+                                },
                             )
                             capturedSamples = samples
 
+                            voiceCoordinator.updatePhase(sessionId, VoiceSessionPhase.PROCESSING)
                             state = SpeechInputState.Transcribing
                             status = transcribingText
                             val transcript = withContext(Dispatchers.Default) {
@@ -175,6 +195,9 @@ actual fun SpeechInputControl(
                             capturedSamples?.fill(0.0f)
                             activeStopRequest.compareAndSet(operationStopRequest, null)
                             jobReference.compareAndSet(currentCoroutineContext()[Job], null)
+                            withContext(NonCancellable) {
+                                voiceSession?.let { voiceCoordinator.end(it.id) }
+                            }
                         }
                     }
                     // Publish the operation-specific cancellation signal and lazy job before
