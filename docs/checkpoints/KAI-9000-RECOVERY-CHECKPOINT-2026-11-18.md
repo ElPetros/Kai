@@ -64,7 +64,39 @@
 - A live Codespace name/ID and its working-tree state were **not** verified. Do not assume uncommitted Codespace files are safely stored in GitHub.
 - Do not initialize, overwrite, clone over, delete, or repurpose `/root/projects/test-repo`. First identify the actual Kai checkout and its remote/status.
 
-## 5. November 18 benchmark work — current progress
+## 5. Earlier Kai product and architecture decisions to preserve
+
+These are carried forward from earlier Kai discussions. They are requirements or design directions, not all completed features.
+
+### Speech and voice interaction
+
+- The composer microphone belongs inside the message composer, on the right, near but clearly separate from the lightning/action control. Do not restore a separate label above the composer such as “Voice input · English, offline.”
+- AI-provider connectivity and speech-engine availability are separate states. A local speech engine can be offline-capable while the chat AI provider is online, unavailable, or rate-limited; do not collapse these into one status indicator. Earlier UI direction was clear red/green provider connectivity, with speech-engine status represented separately where useful.
+- The current implemented speech workflow is bounded, foreground-only dictation: user starts/stops capture, reviews editable text, and explicitly submits it. Speech recognition must not auto-send a chat message, activate an action button, press Enter, or execute a terminal command.
+- Dictation destinations are explicit and session-bound. Terminal command text remains a draft pending a separate user action.
+- The shared voice-session model includes DICTATION, SPOKEN_REQUEST, and LIVE_CONVERSATION modes, but the full end-to-end behavior of all three modes is not established as complete merely because the coordinator enum exists.
+- Local/offline recognition after first-use model download, app-private model storage, no raw-audio upload, and temporary audio cleanup are core privacy/sovereignty boundaries.
+
+### Terminal workgroups — planned, not yet implemented
+
+The intended direction is one Kai coordinating multiple terminal workgroups, rather than independent terminals acting without shared coordination. Earlier design discussions included:
+- Stable session IDs and clear workgroup ownership.
+- A shared objective and shared task context, with source attribution for contributed output.
+- Ordered tasks and explicit dependencies.
+- Resource locking / conflict prevention when workgroups touch shared files or resources.
+- Verification of work before results are accepted or handed off.
+
+The current code does not yet implement full workgroup membership, history, scheduling, dependency execution, or resource locking. Treat this as an architecture requirement and future design task, not a shipped capability.
+
+### Project values, portability, and preservation
+
+- The user strongly values Kai as open-source, free, sovereign, and portable. Prefer local-first behavior and user-controlled data; explain any unavoidable external dependency plainly.
+- Keep the Kai source repository, Kai Build/Debian filesystem, local model files, exports/settings, and Chat Sentinel as distinct preservation surfaces. A GitHub repository does not automatically back up the Debian filesystem, installed packages, local models, or uncommitted workspace files.
+- A previous discussion described Kai export coverage as conversations, memories, tools/settings, heartbeat, tasks, and provider configurations/API keys, while excluding Debian filesystem/packages/Build files/local models. Treat that as the previously discussed export scope, not as a newly verified export guarantee; inspect the actual exporter before relying on it.
+- Any export or settings JSON containing provider credentials/API keys is private. Never commit secrets or private exports into the public GitHub repository. Use placeholders/redaction in documentation and keep credentials in their intended secure local settings store.
+- The user's Kai Build environment is Debian 12 Bookworm ARM64 on the Samsung Galaxy A36. The separate Chat Sentinel checkout and all HIB environments remain out of scope for Kai work.
+
+## 6. November 18 benchmark work — current progress
 
 Work has started on the separate branch `feature/speech-benchmark-harness` and draft PR #2. This branch is based on the recovery checkpoint commit and does not modify the user-facing speech implementation.
 
@@ -78,7 +110,7 @@ Committed foundations:
 
 **Verification status:** the files are committed, but a completed Gradle/CI pass has not yet been confirmed. Do not describe these tests as passed until the workflow result is inspected. No device runner, JSON file I/O, model challenger load, or comparative Galaxy A36 benchmark has been implemented or run.
 
-## 5. Exact next development point
+## 7. Exact next development point
 
 The next planned engineering task is to finish the testable benchmark core, then prepare a **separate, reproducible Android benchmark runner/variant** that:
 
@@ -95,7 +127,7 @@ Other discrete outstanding work:
 - Identify the actual Kai local checkout or Codespace only if local build/device work requires it.
 - Do not change the default speech model, merge PR #1, release, deploy, or alter unrelated settings without explicit approval.
 
-## 6. Resume protocol — use this instead of starting over
+## 8. Resume protocol — use this instead of starting over
 
 When the user returns:
 
@@ -109,7 +141,7 @@ When the user returns:
 
 **Safety rule:** A checkpoint is a verified map, not permission to perform destructive actions. No deletion, overwrite, branch reset, force push, merge, release, deployment, or cross-project change without explicit user approval.
 
-## 7. Quick resume phrase
+## 9. Quick resume phrase
 
 The user can start a future session with:
 
