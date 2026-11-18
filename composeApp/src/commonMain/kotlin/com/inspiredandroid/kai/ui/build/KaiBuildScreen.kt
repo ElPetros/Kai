@@ -119,12 +119,19 @@ fun KaiBuildScreen(
         )
     }
 
-    KaiBuildScreenContent(state = state, actions = actions, onExit = onExit, modifier = modifier)
+    KaiBuildScreenContent(
+        state = state,
+        terminalDrafts = terminalDrafts,
+        actions = actions,
+        onExit = onExit,
+        modifier = modifier,
+    )
 }
 
 @Composable
 internal fun KaiBuildScreenContent(
     state: KaiBuildUiState,
+    terminalDrafts: Map<String, String>,
     actions: KaiBuildActions,
     onExit: () -> Unit,
     modifier: Modifier = Modifier,
