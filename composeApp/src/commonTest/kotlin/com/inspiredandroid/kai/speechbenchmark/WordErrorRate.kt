@@ -104,13 +104,11 @@ internal object WordErrorRate {
         )
     }
 
-    fun normalize(text: String): String =
-        tokenize(text).joinToString(" ")
+    fun normalize(text: String): String = tokenize(text).joinToString(" ")
 
-    private fun tokenize(text: String): List<String> =
-        tokenPattern.findAll(text.lowercase().replace('’', '\''))
-            .map { it.value }
-            .toList()
+    private fun tokenize(text: String): List<String> = tokenPattern.findAll(text.lowercase().replace('’', '\''))
+        .map { it.value }
+        .toList()
 
     private const val MATCH: Byte = 0
     private const val SUBSTITUTE: Byte = 1
