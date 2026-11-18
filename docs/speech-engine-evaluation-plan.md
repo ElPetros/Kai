@@ -20,6 +20,7 @@ Keep the current quantized Moonshine v2 Tiny English integration as the function
 
 - Model: quantized Moonshine v2 Base English, archive `sherpa-onnx-moonshine-base-en-quantized-2026-02-27.tar.bz2`, using the same sherpa-onnx Moonshine runtime family as the current Tiny baseline.
 - The official Moonshine model catalogue lists English Base as MIT-licensed and reports a quantized package around 135 MB, compared with the current Tiny package around 43 MiB. The larger decoder/model footprint is a real device-cost risk, not an automatic quality win.
+- The official catalogue's published English non-streaming table lists Base at 10.07% and Tiny at 12.66% WER on its eight-dataset Open ASR average (58M vs 26M parameters). These are upstream reference results, not measurements of Kai's exact quantized packages on the Galaxy A36; use them only as motivation to run the controlled device comparison.
 - The sherpa-onnx v2.0.1 Kotlin API exposes the Moonshine v2 `encoder` and `mergedDecoder` fields, matching the model's two-file runtime layout.
 - This is a same-family size/accuracy challenger, not an independent architecture comparison. Verify exact archive size, SHA-256, license notice, and load/runtime behavior on the Galaxy A36 before benchmarking.
 - Do not change the installed Tiny baseline or the user-facing default while evaluating Base.
