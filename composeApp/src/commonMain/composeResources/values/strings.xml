@@ -147,7 +147,7 @@
     <string name="settings_dynamic_ui">Dynamic UI</string>
     <string name="settings_dynamic_ui_description">Allow the AI to create interactive UI elements like buttons, forms and cards inline in responses. Change applies to new conversations.</string>
     <string name="settings_speech_auto_send">Automatically send speech transcripts</string>
-    <string name="settings_speech_auto_send_description">When enabled, Kai sends a completed transcript automatically only when the composer is empty and no files are attached. Otherwise, the transcript is inserted for review. Off by default.</string>
+    <string name="settings_speech_auto_send_description">When enabled, Kai sends a completed transcript automatically only when the composer is empty, no files are attached, and Kai is not already responding. Otherwise, the transcript is inserted for review. Off by default.</string>
     <string name="bot_message_thinking_label">Thinking</string>
     <string name="bot_message_thinking_expand_content_description">Expand or collapse thinking</string>
     <string name="settings_theme">Theme</string>
