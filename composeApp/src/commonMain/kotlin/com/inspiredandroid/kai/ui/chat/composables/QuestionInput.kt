@@ -119,6 +119,7 @@ fun QuestionInput(
                     enabled = autoSendSpeech,
                     currentDraft = currentDraft.text,
                     hasAttachments = latestFiles.value.isNotEmpty(),
+                    isLoading = latestIsLoading.value,
                 )
                 if (canSendAutomatically) {
                     latestAsk.value(recognizedText)
