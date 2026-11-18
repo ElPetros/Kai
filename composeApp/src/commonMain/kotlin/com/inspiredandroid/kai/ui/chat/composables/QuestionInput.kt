@@ -109,6 +109,7 @@ fun QuestionInput(
     val latestOnTextStateChange = rememberUpdatedState(onTextStateChange)
     val latestAsk = rememberUpdatedState(ask)
     val latestFiles = rememberUpdatedState(files)
+    val latestIsLoading = rememberUpdatedState(isLoading)
     val onSpeechTranscript: (String) -> Unit = remember(autoSendSpeech) {
         { transcript ->
             val recognizedText = transcript.trim()
