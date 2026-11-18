@@ -100,6 +100,7 @@ fun QuestionInput(
     availableServices: ImmutableList<ServiceEntry> = persistentListOf(),
     onSelectService: (String) -> Unit = {},
     showServiceSelector: Boolean = true,
+    autoSendSpeech: Boolean = false,
     installedSkills: ImmutableList<SkillManifest> = persistentListOf(),
     modifier: Modifier = Modifier,
 ) {
