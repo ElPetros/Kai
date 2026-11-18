@@ -291,3 +291,18 @@ class VersionGeneratorPlugin : Plugin<Project> {
 }
 
 apply<VersionGeneratorPlugin>()
+
+
+// Stable CI entry point: resolve the actual task from the Android-KMP compilation
+// model instead of depending on Kotlin Gradle Plugin task-name conventions.
+tasks.register("compileAndroidDeviceTestSources") {
+    group = "verification"
+    description = "Compiles the Android device-test Kotlin sources."
+    dependsOn(
+        kotlin.targets
+            .getByName("android")
+            .compilations
+            .getByName("deviceTest")
+            .compileTaskProvider,
+    )
+}
