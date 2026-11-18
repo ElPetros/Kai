@@ -1,11 +1,14 @@
 package com.inspiredandroid.kai.speechbenchmark
 
+import kotlinx.serialization.Serializable
+
 /**
  * Runtime description of one fixed, preprocessed benchmark corpus.
  *
  * Audio files are local inputs and are not bundled in the repository. Paths
  * are relative to the benchmark corpus root and identify mono 16 kHz audio.
  */
+@Serializable
 internal data class SpeechBenchmarkManifest(
     val schemaVersion: Int,
     val benchmarkId: String,
@@ -13,6 +16,7 @@ internal data class SpeechBenchmarkManifest(
     val clips: List<SpeechBenchmarkClip>,
 )
 
+@Serializable
 internal data class SpeechBenchmarkClip(
     val id: String,
     val dataset: String,
