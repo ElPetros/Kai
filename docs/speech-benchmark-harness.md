@@ -75,16 +75,16 @@ The device runner should be a test/debug-only path and should implement these st
 
 - WER scorer, manifest validator, aggregate result model, strict JSON codec, and corresponding unit tests have been committed to this branch.
 - The dedicated GitHub Actions workflow is configured to run `spotlessCheck` and `:composeApp:desktopTest` for benchmark source changes, with a manual `workflow_dispatch` entry point. Documentation-only edits no longer trigger the build.
-- No Android benchmark runner exists yet.
+- The Android-KMP `androidDeviceTest` source set is enabled and includes an instrumentation smoke test. The corpus/model execution runner is the next implementation step; no device benchmark has run yet.
 - No candidate model has been downloaded, loaded, or benchmarked on the A36.
 - No comparative result or model-selection decision exists.
 
 ## Next implementation steps
 
 1. Confirm a green CI run after the outstanding Spotless branch-spacing correction; do not claim the tests passed before the workflow completes.
-2. Enable a dedicated Android device-test source set only after confirming its Gradle configuration and instrumentation dependencies.
-3. Implement a one-model-at-a-time Android runner that can reuse the existing Moonshine recognizer path without changing the production speech flow.
-4. Add explicit local corpus import and audio-hash verification; do not bundle or upload dataset recordings.
-5. Validate the Zipformer candidate package, checksum, license, runtime API compatibility, and actual installed footprint before loading it on-device.
+2. Compile and run the new Android-KMP device-test source set on the Galaxy A36.
+3. Implement a one-model-at-a-time Android runner that reads explicit local corpus/model paths and reuses the Moonshine recognizer API without changing production speech flow.
+4. Add WAV format and audio-hash verification plus local JSON report output; do not bundle or upload dataset recordings.
+5. Validate the Moonshine Base candidate package, checksum, license, runtime API compatibility, and actual installed footprint before loading it on-device.
 
 Update this document and the recovery checkpoint after each verified milestone. A source commit alone is not proof that tests passed.

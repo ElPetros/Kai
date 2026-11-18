@@ -46,6 +46,12 @@ kotlin {
             enable = true
         }
         withHostTest {}
+        withDeviceTestBuilder {
+            // Share commonTest benchmark models and validators with instrumentation tests.
+            sourceSetTreeName = "test"
+        }.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
     }
 
     listOf(
@@ -141,6 +147,13 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
                 implementation(libs.multiplatform.settings.test)
+            }
+        }
+        androidDeviceTest {
+            dependencies {
+                implementation(libs.androidx.test.runner)
+                implementation(libs.androidx.test.core)
+                implementation(libs.androidx.test.ext.junit)
             }
         }
         androidMain {

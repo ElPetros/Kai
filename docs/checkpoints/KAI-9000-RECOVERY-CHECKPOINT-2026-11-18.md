@@ -162,3 +162,11 @@ The user can start a future session with:
 - Workflow run #41 (head `269e3d4`) confirms the failure is formatting-only at this point; the shared benchmark test task was not reached. Do not characterize this as a speech runtime failure or a failing benchmark unit test.
 - The correction consolidates the remaining source formatting, narrows path filters so documentation-only edits do not start this build, adds a manual `workflow_dispatch` entry point, and refreshes the concurrency group. The PR remains draft and unmerged; no production speech code or Chat Sentinel files are changed.
 - The next required evidence is a successful workflow run that completes both `spotlessCheck` and `:composeApp:desktopTest`. Until then, CI remains unverified.
+
+
+## Android device-test source-set checkpoint (2026-11-18)
+
+- Enabled Android-KMP `androidDeviceTest` in `composeApp/build.gradle.kts` using `withDeviceTestBuilder` and `sourceSetTreeName = "test"`, making shared `commonTest` benchmark code available to the device-test compilation.
+- Added AndroidX Test runner/core/JUnit stable dependencies and a minimal instrumentation smoke test under `composeApp/src/androidDeviceTest`.
+- Updated the benchmark CI workflow to compile the Android device-test Kotlin source set in addition to formatting and desktop benchmark tests. CI installs Android SDK platform 37 for this compile.
+- This checkpoint proves configuration and compilation only after CI succeeds; the full local corpus/model runner and Galaxy A36 execution remain pending. No production speech code or model assets were changed.

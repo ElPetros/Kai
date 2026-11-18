@@ -6,6 +6,7 @@ on:
       - feature/offline-speech-input
     paths:
       - "composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/speechbenchmark/**"
+      - "composeApp/src/androidDeviceTest/**"
       - "composeApp/build.gradle.kts"
       - "build.gradle.kts"
       - "gradle/libs.versions.toml"
@@ -38,10 +39,10 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
         with:
-          packages: platform-tools
+          packages: platform-tools;platforms;android-37
 
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
       - name: Check formatting and run shared benchmark tests
-        run: ./gradlew spotlessCheck :composeApp:desktopTest --no-daemon --stacktrace
+        run: ./gradlew spotlessCheck :composeApp:desktopTest :composeApp:compileAndroidDeviceTestKotlinAndroid --no-daemon --stacktrace
