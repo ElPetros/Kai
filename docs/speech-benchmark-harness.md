@@ -62,9 +62,12 @@ The device runner should be a test/debug-only path and should implement these st
 ## Candidate comparison
 
 - Baseline: quantized Moonshine v2 Tiny English, sherpa-onnx 2.0.1.
-- Challenger: Zipformer GigaSpeech English offline transducer, upstream ID `sherpa-onnx-zipformer-gigaspeech-2023-12-12`.
+- Initial challenger lead: Zipformer GigaSpeech English offline transducer, upstream ID `sherpa-onnx-zipformer-gigaspeech-2023-12-12`.
+- **GigaSpeech model-weight license is unresolved.** Dataset access terms restrict the audio to non-commercial research/education, while the repository's Apache license does not by itself establish rights to the audio or the derived model weights. Do not bundle or distribute this model with Kai until weight redistribution rights are clarified.
+- sherpa-onnx 2.0.1's Kotlin API includes the transducer encoder/decoder/joiner configuration shape, but the candidate has not been loaded on Android.
+- Alternative lead: sherpa-onnx Zipformer Small trained on LibriSpeech, with a listed 25 MB int8 encoder. Its model-weight license and checksum also require verification before use.
 - Primary corpora in the evaluation plan: Earnings-22 and TED-LIUM 3; LibriSpeech test-clean is a clean-speech sanity check, not the deciding real-world metric.
-- Do not use the candidate's own training corpus as the independent primary test set.
+- Do not use a candidate's own training corpus as the independent primary test set.
 - AMI meeting audio is a possible later conversational/overlap evaluation, with speaker attribution evaluated separately from WER.
 
 ## Current verification status
