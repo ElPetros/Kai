@@ -106,9 +106,21 @@ fun QuestionInput(
 ) {
     val latestTextState = rememberUpdatedState(textState)
     val latestOnTextStateChange = rememberUpdatedState(onTextStateChange)
-    val onSpeechTranscript: (String) -> Unit = remember {
+    val latestAsk = rememberUpdatedState(ask)
+    val latestFiles = rememberUpdatedState(files)
+    val onSpeechTranscript: (String) -> Unit = remember(autoSendSpeech) {
         { transcript ->
-            latestOnTextStateChange.value(insertTranscript(latestTextState.value, transcript))
+            val recognizedText = transcript.trim()
+            if (recognizedText.isNotEmpty()) {
+                val currentDraft = latestTextState.value
+                val canSendAutomatically = autoSendSpeech &&
+                    currentDraft.text.isBlank() && latestFiles.value.isEmpty()
+                if (canSendAutomatically) {
+                    latestAsk.value(recognizedText)
+                } else {
+                    latestOnTextStateChange.value(insertTranscript(currentDraft, recognizedText))
+                }
+            }
         }
     }
 
