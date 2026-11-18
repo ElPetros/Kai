@@ -34,8 +34,9 @@ class SpeechTextInsertionTest {
 
     @Test
     fun automaticSendingFallsBackToReviewWhenDraftExists() {
-        assertFalse(shouldAutoSendSpeechTranscript(true, "Existing draft", false))
-        assertFalse(shouldAutoSendSpeechTranscript(true, "   ", true))
+        assertFalse(shouldAutoSendSpeechTranscript(true, "Existing draft", false, false))
+        assertFalse(shouldAutoSendSpeechTranscript(true, "   ", true, false))
+        assertFalse(shouldAutoSendSpeechTranscript(true, "", false, true))
     }
 }
 
