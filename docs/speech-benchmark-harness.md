@@ -43,6 +43,10 @@ Tests cover exact matches, each edit operation, punctuation/case normalization, 
 
 \`SpeechBenchmarkResults.kt\` records model/device/build metadata and per-clip success or failure. Failed clips remain visible in the failure rate but are excluded from WER and latency summaries. Corpus WER is computed from summed S/D/I counts divided by summed reference words. Median inference time and median real-time factor are reported, along with min/max latency and optional model-size/memory observations. Empty or all-failed runs return null accuracy/latency values instead of invented zeros.
 
+### Local JSON format
+
+\`SpeechBenchmarkJson.kt\` provides strict JSON encoding/decoding for manifests and reports. Manifest encoding and decoding both run structural validation. Report encoding and decoding verify the schema version and recompute the aggregate from per-clip results, rejecting a report whose summary does not match its underlying measurements. The codec is test-source-only at this stage; a device runner still needs to write the JSON to an explicit local destination.
+
 ## Required benchmark runner design
 
 The device runner should be a test/debug-only path and should implement these stages:
@@ -65,18 +69,18 @@ The device runner should be a test/debug-only path and should implement these st
 
 ## Current verification status
 
-- WER scorer, manifest validator, aggregate result model, and corresponding unit tests have been committed to this branch.
-- The tests have not yet been confirmed by a completed Gradle CI run. The existing repository workflow only runs on pushes to `main` and pull requests targeting `main`; this feature branch is intentionally not the base of the existing speech PR. A dedicated branch-scoped test workflow is being added to run ` :composeApp:desktopTest ` for this isolated benchmark foundation.
+- WER scorer, manifest validator, aggregate result model, strict JSON codec, and corresponding unit tests have been committed to this branch.
+- The dedicated GitHub Actions workflow has started; its final conclusion still needs to be checked before calling the test suite green. The existing repository workflow only runs on pushes to `main` and pull requests targeting `main`; this feature branch is intentionally not the base of the existing speech PR. A dedicated branch-scoped test workflow is being added to run ` :composeApp:desktopTest ` for this isolated benchmark foundation.
 - No Android benchmark runner exists yet.
 - No candidate model has been downloaded, loaded, or benchmarked on the A36.
 - No comparative result or model-selection decision exists.
 
 ## Next implementation steps
 
-1. Get the WER, manifest, and aggregation tests running in CI; fix compile/test/format issues.
-2. Add a JSON reader/writer and schema-versioned local manifest/result format.
-3. Inspect sherpa-onnx 2.0.1 APIs and Android test/build source sets before implementing the device adapter.
-4. Implement a one-model-at-a-time Android runner that can reuse the existing Moonshine recognizer path without changing the production speech flow.
+1. Confirm the current CI run and fix any compile/test/format issues.
+2. Enable a dedicated Android device-test source set only after confirming its Gradle configuration and instrumentation dependencies.
+3. Implement a one-model-at-a-time Android runner that can reuse the existing Moonshine recognizer path without changing the production speech flow.
+4. Add explicit local corpus import and audio-hash verification; do not bundle or upload dataset recordings.
 5. Validate the Zipformer candidate package, checksum, license, runtime API compatibility, and actual installed footprint before loading it on-device.
 
 Update this document and the recovery checkpoint after each verified milestone. A source commit alone is not proof that tests passed.
