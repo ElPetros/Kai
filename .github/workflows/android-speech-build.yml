@@ -3,7 +3,7 @@ name: Android Speech Build
 on:
   pull_request:
     branches:
-      - main
+      - feature/offline-speech-input
     paths:
       - "androidApp/**"
       - "composeApp/**"
@@ -16,10 +16,10 @@ permissions:
   contents: read
 
 jobs:
-  build-foss-debug:
-    name: Build FOSS debug APK
+  build-speechtest-and-device-test:
+    name: Build Speech Test app and benchmark test APKs
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - name: Check out source
         uses: actions/checkout@v4
@@ -51,13 +51,15 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
-      - name: Assemble FOSS debug APK
-        run: ./gradlew :androidApp:assembleFossDebug --no-daemon --stacktrace
+      - name: Assemble isolated Speech Test app and Android device-test APK
+        run: ./gradlew :androidApp:assembleFossDebug :composeApp:assembleAndroidDeviceTest --no-daemon --stacktrace
 
-      - name: Upload debug APK
+      - name: Upload installable APKs
         uses: actions/upload-artifact@v4
         with:
-          name: kai-foss-debug
-          path: androidApp/build/outputs/apk/foss/debug/*.apk
+          name: kai-speechtest-and-benchmark-apks
+          path: |
+            androidApp/build/outputs/apk/foss/debug/*.apk
+            composeApp/build/outputs/**/*.apk
           if-no-files-found: error
           retention-days: 7
