@@ -14,17 +14,33 @@ class WordErrorRateTest {
     }
 
     @Test
-    fun countsSubstitutionsDeletionsAndInsertions() {
-        val result = WordErrorRate.score(
-            reference = "a b c d",
-            hypothesis = "a x d extra",
-        )
+    fun countsSubstitutions() {
+        val result = WordErrorRate.score("a b c", "a x c")
 
         assertEquals(1, result.substitutions)
+        assertEquals(0, result.deletions)
+        assertEquals(0, result.insertions)
+        assertEquals(1.0 / 3.0, result.wordErrorRate)
+    }
+
+    @Test
+    fun countsDeletions() {
+        val result = WordErrorRate.score("a b c", "a c")
+
+        assertEquals(0, result.substitutions)
         assertEquals(1, result.deletions)
+        assertEquals(0, result.insertions)
+        assertEquals(1.0 / 3.0, result.wordErrorRate)
+    }
+
+    @Test
+    fun countsInsertions() {
+        val result = WordErrorRate.score("a c", "a b c")
+
+        assertEquals(0, result.substitutions)
+        assertEquals(0, result.deletions)
         assertEquals(1, result.insertions)
-        assertEquals(3, result.totalErrors)
-        assertEquals(0.75, result.wordErrorRate)
+        assertEquals(0.5, result.wordErrorRate)
     }
 
     @Test
