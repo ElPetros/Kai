@@ -174,3 +174,5 @@ The user can start a future session with:
 - CI run #43 (`44270376677`) failed during Android SDK setup before Gradle execution because the setup action received the SDK package list as one semicolon-delimited token. Corrected the workflow to pass `platform-tools` and `platforms;android-37` as separate lines; rerun required before treating device-test compilation as verified.
 
 - CI run #44 (`44270522981`) was superseded/cancelled by the newer PR synchronization before Gradle ran. CI run #45 (`44270571690`) also failed before Gradle: `setup-android` treats its `packages` input as a space-separated list, not a multiline list. Corrected to `packages: 'platform-tools platforms;android-37'`; a further CI run is needed to verify the Android compile task.
+
+- CI run #47 (`44270722396`) confirmed the package list is now parsed correctly, but Google publishes API 37 as `platforms;android-37.0` (not `platforms;android-37`). The workflow is pinned to `platforms;android-37.0` and `build-tools;37.0.0` for the compileSdk 37 project. This SDK setup must pass before Gradle compilation can be assessed.

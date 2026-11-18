@@ -47,7 +47,7 @@ kotlin {
         }
         withHostTest {}
         withDeviceTestBuilder {
-            // Share commonTest benchmark models and validators with instrumentation tests; compile this source set in CI.
+            // Share commonTest benchmark models and validators with instrumentation tests; compile this source set in CI against the published Android 37.0 SDK platform.
             sourceSetTreeName = "test"
         }.configure {
             instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
