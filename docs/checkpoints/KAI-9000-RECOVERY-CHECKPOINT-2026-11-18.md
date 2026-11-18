@@ -8,7 +8,7 @@
 - GitHub repository: [ElPetros/Kai](https://github.com/ElPetros/Kai), a fork of SimonSchubert/Kai.
 - Primary speech implementation branch: `feature/offline-speech-input`.
 - Isolated benchmark development branch: `feature/speech-benchmark-harness` (based on the verified recovery checkpoint).
-- Benchmark branch head immediately before this checkpoint update: `e102ad30b6461c76d2f7888856fd442e70a3d30b`.
+- Benchmark branch head immediately before this checkpoint update: `1fa9dba4e8b0f6f610507dcb9006231ebb50817a`.
 - Original speech implementation head before checkpoint-only updates: `e00d1cbba0ec59fc4b30d1902f7a19b07ce4512c`.
 - Verified commit: [Add controlled offline speech model evaluation plan](https://github.com/ElPetros/Kai/commit/e00d1cbba0ec59fc4b30d1902f7a19b07ce4512c).
 - Open draft PR [#1 — Add Android offline speech input](https://github.com/ElPetros/Kai/pull/1) remains the original speech feature PR, targeting `main`; do not merge it as part of benchmark work.
@@ -110,7 +110,7 @@ Committed foundations:
 - `docs/speech-engine-evaluation-plan.md`: candidate review now puts MIT-licensed Moonshine v2 Base English first for investigation; GigaSpeech Zipformer is held pending model-weight redistribution rights; LibriSpeech Zipformer weight license remains unverified.
 - `.github/workflows/speech-benchmark-core.yml`: PR-scoped workflow runs `spotlessCheck` and `:composeApp:desktopTest`, with concurrency cancellation to avoid duplicate/superseded checks.
 
-**Verification status:** CI exposed two successive Spotless formatting differences in `WordErrorRate.kt`; both have been corrected in the current branch head. Earlier CI attempts stopped at `spotlessKotlinCheck`, so the `desktopTest` suite has not yet been reached. The latest PR workflow run at checkpoint time was pending (run 38, head `e102ad30b6461c76d2f7888856fd442e70a3d30b`). Inspect that run and any newer run before claiming formatting or tests pass. No Android device runner or actual device benchmark has been implemented or run. JSON codec logic is implemented and has unit tests in source, but test execution is still pending.
+**Verification status:** CI exposed two successive Spotless formatting differences in `WordErrorRate.kt`; both have been corrected in commit `e102ad30b6461c76d2f7888856fd442e70a3d30b`. Earlier CI attempts stopped at `spotlessKotlinCheck`, so `:composeApp:desktopTest` has not yet been confirmed. Several newer PR checks were canceled or left pending while the workflow concurrency group was refreshed; no green CI result has been confirmed. Inspect the latest workflow run live before claiming formatting or tests pass. No Android device runner or actual device benchmark has been implemented or run. JSON codec logic is implemented and has unit tests in source, but test execution is still pending.
 
 
 
