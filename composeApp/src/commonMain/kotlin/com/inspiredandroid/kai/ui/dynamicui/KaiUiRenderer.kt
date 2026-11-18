@@ -214,6 +214,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.inspiredandroid.kai.Platform
+import com.inspiredandroid.kai.currentPlatform
+import com.inspiredandroid.kai.tools.SpeechInputControl
+import com.inspiredandroid.kai.tools.VoiceInputTarget
 import com.inspiredandroid.kai.ui.KaiOutlinedTextField
 import com.inspiredandroid.kai.ui.components.KaiChip
 import com.inspiredandroid.kai.ui.handCursor
