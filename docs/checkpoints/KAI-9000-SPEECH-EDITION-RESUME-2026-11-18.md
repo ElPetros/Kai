@@ -38,17 +38,19 @@ Important distinction: the local speech recognition succeeded. The later AI-prov
 
 ## Evidence package
 
-A six-still evidence set was extracted from the supplied screen recording and delivered in the conversation as `kai9000-speech-evidence.zip`. It contains the JPEGs and a README with timestamps, descriptions, SHA-256 hashes, provenance, and limitations.
+The evidence ZIP delivered in the conversation is `kai9000-speech-evidence.zip`. It now contains **seven still images** and a README with descriptions, source timestamps where applicable, SHA-256 hashes, provenance, and limitations.
 
-Selected source timestamps:
-- 0s — idle speech control
-- 1s — recording active
-- 18s — on-device transcription
-- 20s — first transcript review
-- 35s — second transcript submitted / assistant processing
-- 44s — provider limit
+- `00-before-speech-microphone.jpg` — separate user-supplied original Kai 9000 screen capture showing the composer before speech-microphone integration. The composer displays “Ask a question”, an attachment control, and the lightbulb/action control; no microphone control is visible. SHA-256: `47f462ed88d6f6007681ef3ae5c503e9183f8f0fc4765972fea4f4a695975dc6`.
+- `01-idle-speech-control.jpg` — 0s, idle speech interface.
+- `02-recording-active.jpg` — 1s, recording active.
+- `03-on-device-transcription.jpg` — 18s, on-device transcription.
+- `04-first-transcript-review.jpg` — 20s, first transcript review.
+- `05-second-transcript-submitted.jpg` — 35s, second transcript submitted / assistant processing.
+- `06-provider-limit-separate-from-asr.jpg` — 44s, provider limit.
 
-Evidence limitation: the video starts after the speech interface is already present. It shows the mic idle, not the original pre-feature composer without a microphone. Do not claim it proves a before/after UI comparison. The stills are extracted from the video, not original device screenshots.
+The pre-feature image is a user-supplied screenshot, not a video frame. The six workflow images are extracted from the supplied 47.85-second video. The screenshot and video together now support a before/after interface comparison as well as the end-to-end workflow. The ZIP has been regenerated to include the baseline screenshot.
+
+**Repository binary status:** the screenshot/JPEG files are packaged in the conversation ZIP but have not yet been committed as binary assets in GitHub. Do not claim they are already present in the repository. The checkpoint text is saved here; adding the image binaries under `docs/evidence/kai-speech-device-test-2026-11-17/` remains a discrete task.
 
 ## Evaluation status and next work
 
@@ -62,7 +64,7 @@ Evidence limitation: the video starts after the speech interface is already pres
 
 1. Resume in `ElPetros/Kai`, branch `feature/offline-speech-input`, not any Chat Sentinel repository.
 2. Re-establish the local checkout identity before running Git commands. Do not initialize or overwrite `/root/projects/test-repo` unless its remote and contents prove it is the Kai checkout.
-3. Add the six extracted JPEGs under `docs/evidence/kai-speech-device-test-2026-11-17/` and link them from an evidence index. The ZIP is available in the prior ChatGPT conversation; it is not yet committed by this checkpoint.
+3. Commit the seven JPEGs from the evidence ZIP under `docs/evidence/kai-speech-device-test-2026-11-17/` and link them from an evidence index. The ZIP is available in the prior ChatGPT conversation; it is not yet committed by this checkpoint.
 4. Review PR #1 and update its description to reflect that real-device smoke testing has passed, while preserving the caveat that the sample is small and accuracy evaluation remains outstanding.
 5. Continue with documentation/evidence first. No merge, release, deployment, or unrelated source changes without explicit approval.
 
