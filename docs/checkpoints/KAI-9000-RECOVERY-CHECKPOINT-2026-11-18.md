@@ -6,10 +6,13 @@
 
 - Project: **Kai 9000 Speech Edition**.
 - GitHub repository: [ElPetros/Kai](https://github.com/ElPetros/Kai), a fork of SimonSchubert/Kai.
-- Active development branch: `feature/offline-speech-input`.
-- Verified branch/PR head at the time this checkpoint was prepared: `e00d1cbba0ec59fc4b30d1902f7a19b07ce4512c`.
+- Primary speech implementation branch: `feature/offline-speech-input`.
+- Isolated benchmark development branch: `feature/speech-benchmark-harness` (based on the verified recovery checkpoint).
+- Benchmark branch head immediately before this checkpoint update: `cc7310b880d367a8919b589b73d9d7c2dd5b07e7`.
+- Original speech implementation head before checkpoint-only updates: `e00d1cbba0ec59fc4b30d1902f7a19b07ce4512c`.
 - Verified commit: [Add controlled offline speech model evaluation plan](https://github.com/ElPetros/Kai/commit/e00d1cbba0ec59fc4b30d1902f7a19b07ce4512c).
-- Open draft PR: [#1 — Add Android offline speech input](https://github.com/ElPetros/Kai/pull/1). It was verified open, draft, unmerged, with head `e00d1cbba0ec59fc4b30d1902f7a19b07ce4512c` and base `main`.
+- Open draft PR [#1 — Add Android offline speech input](https://github.com/ElPetros/Kai/pull/1) remains the original speech feature PR, targeting `main`; do not merge it as part of benchmark work.
+- Open draft PR [#2 — Add isolated offline speech benchmark scoring core](https://github.com/ElPetros/Kai/pull/2) targets `feature/offline-speech-input`, keeping benchmark work separate from PR #1.
 - Other known branches: `checkpoint/kai-speech-edition-2026-11-18` and `feature/offline-speech-input-privacy-hardening`. Do not switch or merge branches casually; inspect first.
 - **Kai and Chat Sentinel are separate projects.** Do not run Chat Sentinel commands, modify its repository, or mix its HIB work into this Kai task.
 
@@ -61,9 +64,23 @@
 - A live Codespace name/ID and its working-tree state were **not** verified. Do not assume uncommitted Codespace files are safely stored in GitHub.
 - Do not initialize, overwrite, clone over, delete, or repurpose `/root/projects/test-repo`. First identify the actual Kai checkout and its remote/status.
 
+## 5. November 18 benchmark work — current progress
+
+Work has started on the separate branch `feature/speech-benchmark-harness` and draft PR #2. This branch is based on the recovery checkpoint commit and does not modify the user-facing speech implementation.
+
+Committed foundations:
+- `composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/speechbenchmark/WordErrorRate.kt`: deterministic Levenshtein WER scorer with fixed normalization policy v1 and stable edit-operation tie-break.
+- `WordErrorRateTest.kt`: exact match, substitution, deletion, insertion, punctuation/case/apostrophe handling, empty-reference behavior, and number-token policy tests.
+- `SpeechBenchmarkManifest.kt` and `SpeechBenchmarkManifestValidatorTest.kt`: versioned manifest data model and validation for unique IDs, safe relative paths, SHA-256 syntax, mono 16 kHz prepared audio, positive durations, and non-empty references.
+- `SpeechBenchmarkResults.kt` and `SpeechBenchmarkAggregatorTest.kt`: per-clip success/failure model and aggregate accuracy/latency/failure metrics. Corpus WER is weighted by reference word count; failed clips remain visible in failure rate but are excluded from WER and latency.
+- `docs/speech-benchmark-harness.md`: design, privacy boundaries, current status, and next steps.
+- `.github/workflows/speech-benchmark-core.yml`: branch-scoped workflow intended to run `spotlessCheck` and `:composeApp:desktopTest`.
+
+**Verification status:** the files are committed, but a completed Gradle/CI pass has not yet been confirmed. Do not describe these tests as passed until the workflow result is inspected. No device runner, JSON file I/O, model challenger load, or comparative Galaxy A36 benchmark has been implemented or run.
+
 ## 5. Exact next development point
 
-The next planned engineering task is to prepare a **separate, reproducible Android benchmark harness/variant** that:
+The next planned engineering task is to finish the testable benchmark core, then prepare a **separate, reproducible Android benchmark runner/variant** that:
 
 1. Loads only one selected ASR model at a time.
 2. Uses a fixed clip manifest and reference transcripts.
@@ -96,4 +113,4 @@ When the user returns:
 
 The user can start a future session with:
 
-> Resume Kai 9000 from the verified November 18 recovery checkpoint in ElPetros/Kai. Connect to GitHub, verify the active branch and PR head against the checkpoint, then continue from the first unfinished task. Do not restart completed work or touch Chat Sentinel.
+> Resume Kai 9000 from the verified November 18 recovery checkpoint in ElPetros/Kai. Connect to GitHub, verify the speech branch, benchmark branch, and PR #1/#2 heads, inspect CI, then continue from the first unfinished benchmark task. Do not restart completed work or touch Chat Sentinel.
