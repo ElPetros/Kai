@@ -10,7 +10,7 @@ on:
       - ".github/workflows/speech-benchmark-core.yml"
 
 concurrency:
-  group: speech-benchmark-core-${{ github.event.pull_request.number || github.ref }}
+  group: speech-benchmark-core-v2-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
