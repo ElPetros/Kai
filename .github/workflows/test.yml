@@ -54,8 +54,11 @@ jobs:
       - name: Check Kotlin and Gradle formatting
         run: ./gradlew spotlessCheck --no-daemon --stacktrace
 
-      - name: Verify screenshot baselines
-        run: ./gradlew :screenshotTests:verifyPaparazziDebug --no-daemon --stacktrace
+      # Paparazzi baselines are intentionally gitignored in this project.
+      # Run the screenshot tests in record mode to exercise rendering without
+      # claiming a visual-regression comparison against committed golden images.
+      - name: Run screenshot rendering tests (no baseline comparison)
+        run: ./gradlew :screenshotTests:recordPaparazziDebug --no-daemon --stacktrace
 
       - name: Verify site images are converted
         shell: bash
