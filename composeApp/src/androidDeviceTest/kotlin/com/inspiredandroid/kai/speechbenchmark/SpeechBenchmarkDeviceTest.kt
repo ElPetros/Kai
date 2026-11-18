@@ -30,7 +30,7 @@ class SpeechBenchmarkDeviceTest {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         assumeTrue(
             "Pass -e runSpeechBenchmark true to execute the local corpus benchmark.",
-            instrumentation.arguments.getString("runSpeechBenchmark") == "true",
+            InstrumentationRegistry.getArguments().getString("runSpeechBenchmark") == "true",
         )
 
         val report = SpeechBenchmarkAndroidRunner.run(instrumentation.targetContext)
