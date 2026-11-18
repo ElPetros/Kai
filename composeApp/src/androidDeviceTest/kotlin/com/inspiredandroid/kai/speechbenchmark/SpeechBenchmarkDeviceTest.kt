@@ -7,7 +7,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Smoke test proving the Android-KMP instrumentation target executes on a device. */
+/** Smoke test proving Android-KMP instrumentation and app-private test storage are available. */
 @RunWith(AndroidJUnit4::class)
 class SpeechBenchmarkDeviceTest {
     @Test
