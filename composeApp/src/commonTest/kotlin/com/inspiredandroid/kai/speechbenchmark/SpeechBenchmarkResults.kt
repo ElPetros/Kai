@@ -1,6 +1,9 @@
 package com.inspiredandroid.kai.speechbenchmark
 
+import kotlinx.serialization.Serializable
+
 /** Metadata needed to interpret and reproduce one model's device benchmark. */
+@Serializable
 internal data class SpeechBenchmarkRun(
     val modelId: String,
     val modelRevision: String,
@@ -37,6 +40,7 @@ internal data class SpeechBenchmarkRun(
  * One clip outcome. Failed clips remain visible in failure-rate reporting but
  * are excluded from WER and latency aggregates.
  */
+@Serializable
 internal data class SpeechBenchmarkClipResult(
     val clipId: String,
     val audioSha256: String,
@@ -98,6 +102,7 @@ internal data class SpeechBenchmarkClipResult(
     }
 }
 
+@Serializable
 internal data class SpeechBenchmarkAggregate(
     val totalClipCount: Int,
     val successfulClipCount: Int,
