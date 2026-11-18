@@ -2,6 +2,8 @@ package com.inspiredandroid.kai.tools
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class SpeechTextInsertionTest {
     @Test
