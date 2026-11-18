@@ -149,7 +149,7 @@ kotlin {
                 implementation(libs.multiplatform.settings.test)
             }
         }
-        androidDeviceTest {
+        getByName("androidDeviceTest") {
             dependencies {
                 implementation(libs.androidx.test.runner)
                 implementation(libs.androidx.test.core)
