@@ -1,5 +1,7 @@
 package com.inspiredandroid.kai.speechbenchmark
 
+import kotlinx.serialization.Serializable
+
 /**
  * Deterministic word-error-rate scoring for offline ASR benchmark transcripts.
  *
@@ -113,6 +115,7 @@ internal object WordErrorRate {
     private const val DELETE: Byte = 2
     private const val INSERT: Byte = 3
 
+    @Serializable
     data class Result(
         val substitutions: Int,
         val deletions: Int,
