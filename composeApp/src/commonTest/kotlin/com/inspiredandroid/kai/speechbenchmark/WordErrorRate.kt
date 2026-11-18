@@ -4,7 +4,7 @@ package com.inspiredandroid.kai.speechbenchmark
  * Deterministic word-error-rate scoring for offline ASR benchmark transcripts.
  *
  * Normalization policy v1:
- * - Unicode lowercase using Locale.ROOT.
+ * - Unicode lowercase using Kotlin's locale-independent lowercase operation.
  * - Curly apostrophes are normalized to straight apostrophes.
  * - Tokens contain Unicode letters/digits; an internal apostrophe is retained.
  * - Punctuation and whitespace are separators.
