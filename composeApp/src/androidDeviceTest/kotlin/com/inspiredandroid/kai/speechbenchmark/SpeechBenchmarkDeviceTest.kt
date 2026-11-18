@@ -17,5 +17,6 @@ class SpeechBenchmarkDeviceTest {
 
         assertTrue("Expected an Android API level supported by Kai", Build.VERSION.SDK_INT >= 26)
         assertTrue("Instrumentation target package must be available", targetContext.packageName.isNotBlank())
+        assertTrue("App-private test files directory must be available", targetContext.filesDir.isDirectory)
     }
 }

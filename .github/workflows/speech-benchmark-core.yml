@@ -7,6 +7,7 @@ on:
     paths:
       - "composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/speechbenchmark/**"
       - "composeApp/src/androidDeviceTest/**"
+      - ".github/workflows/speech-benchmark-core.yml"
       - "composeApp/build.gradle.kts"
       - "build.gradle.kts"
       - "gradle/libs.versions.toml"
