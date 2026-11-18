@@ -55,6 +55,14 @@ internal fun GeneralContent(uiState: SettingsUiState, actions: SettingsActions) 
                     )
                 }
             }
+            if (uiState.showSpeechAutoSendToggle) {
+                SettingsCard {
+                    SpeechAutoSendToggle(
+                        isEnabled = uiState.isSpeechAutoSendEnabled,
+                        onToggle = actions.onToggleSpeechAutoSend,
+                    )
+                }
+            }
             SettingsCard {
                 DynamicUiToggle(
                     isDynamicUiEnabled = uiState.isDynamicUiEnabled,
@@ -99,6 +107,21 @@ private fun DaemonModeToggle(
             description = stringResource(Res.string.settings_daemon_mode_description),
             checked = isDaemonEnabled,
             onCheckedChange = onToggleDaemon,
+        )
+    }
+}
+
+@Composable
+private fun SpeechAutoSendToggle(
+    isEnabled: Boolean,
+    onToggle: (Boolean) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        ToggleableHeadline(
+            title = stringResource(Res.string.settings_speech_auto_send),
+            description = stringResource(Res.string.settings_speech_auto_send_description),
+            checked = isEnabled,
+            onCheckedChange = onToggle,
         )
     }
 }
