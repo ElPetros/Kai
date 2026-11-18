@@ -208,11 +208,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.inspiredandroid.kai.Platform
+import com.inspiredandroid.kai.currentPlatform
+import com.inspiredandroid.kai.tools.SpeechInputControl
+import com.inspiredandroid.kai.tools.VoiceInputTarget
+import com.inspiredandroid.kai.tools.appendSpeechTranscript
 import com.inspiredandroid.kai.ui.KaiOutlinedTextField
 import com.inspiredandroid.kai.ui.components.KaiChip
 import com.inspiredandroid.kai.ui.handCursor
@@ -592,6 +598,8 @@ private fun RenderTextInput(
     isInteractive: Boolean,
     formState: SnapshotStateMap<String, String>,
 ) {
+    val currentPlatformSupportsSpeech = currentPlatform is Platform.Mobile.Android &&
+        !LocalInspectionMode.current
     KaiOutlinedTextField(
         value = formState[node.id] ?: "",
         onValueChange = { formState[node.id] = it },
@@ -600,6 +608,22 @@ private fun RenderTextInput(
         enabled = isInteractive,
         singleLine = node.multiline != true,
         modifier = Modifier.fillMaxWidth(),
+        trailingIcon = if (isInteractive && currentPlatformSupportsSpeech) {
+            {
+                SpeechInputControl(
+                    onTranscript = { transcript ->
+                        formState[node.id] = appendSpeechTranscript(
+                            current = formState[node.id].orEmpty(),
+                            transcript = transcript,
+                        )
+                    },
+                    target = VoiceInputTarget.InteractiveField(node.id),
+                    modifier = Modifier,
+                )
+            }
+        } else {
+            null
+        },
     )
 }
 

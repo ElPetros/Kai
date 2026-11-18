@@ -127,6 +127,36 @@ class SandboxSessionViewModel(
         sessionState(_selectedSessionId.value).inputText = text
     }
 
+    /**
+     * Reads a visible session's draft without changing the selected session.
+     * Returns null when the session has closed or is no longer available.
+     */
+    fun inputTextForSession(sessionId: String): String? {
+        if (_visibleSessions.value.none { it.id == sessionId }) return null
+        return if (_selectedSessionId.value == sessionId) {
+            _inputText.value
+        } else {
+            sessionState(sessionId).inputText
+        }
+    }
+
+    /**
+     * Updates the draft belonging to the session that originally requested
+     * dictation, even if the user has selected a different tab meanwhile.
+     *
+     * Returns false when the target is no longer a visible/live session so a
+     * late transcription cannot recreate stale session state or be redirected.
+     */
+    fun setInputTextForSession(sessionId: String, text: String): Boolean {
+        if (_visibleSessions.value.none { it.id == sessionId }) return false
+
+        sessionState(sessionId).inputText = text
+        if (_selectedSessionId.value == sessionId) {
+            _inputText.value = text
+        }
+        return true
+    }
+
     fun submit() {
         val sid = _selectedSessionId.value
         val s = sessionState(sid)

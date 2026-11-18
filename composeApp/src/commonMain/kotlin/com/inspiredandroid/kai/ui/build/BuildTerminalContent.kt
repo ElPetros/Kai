@@ -65,6 +65,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.inspiredandroid.kai.build.BuildTerminalSession
+import com.inspiredandroid.kai.tools.SpeechInputControl
+import com.inspiredandroid.kai.tools.VoiceInputTarget
 import com.inspiredandroid.kai.build.PlatformTerminalKeyboard
 import com.inspiredandroid.kai.build.supportsRawTerminalInput
 import com.inspiredandroid.kai.build.terminal.MIN_COLUMNS
@@ -167,6 +169,9 @@ private fun terminalCellMetrics(measurer: TextMeasurer): TerminalCellMetrics {
 @Composable
 internal fun BuildTerminalContent(
     session: BuildTerminalSession,
+    input: String,
+    onInputChange: (String) -> Unit,
+    onTranscript: (String) -> Unit,
     onSubmitLine: (String) -> Unit,
     onKey: (TerminalKey, TerminalModifiers) -> Unit,
     onText: (String, TerminalModifiers) -> Unit,
@@ -176,8 +181,7 @@ internal fun BuildTerminalContent(
 ) {
     val terminal = session.terminal
     val busy = session.busy
-    // Each tab keeps its own draft line.
-    var input by remember(session.id) { mutableStateOf("") }
+    // Draft ownership lives in KaiBuildViewModel, keyed by this session ID.
     // Keys straight to the PTY is the default where the platform can do it —
     // that is the only way a TUI reacts while the user is still typing.
     var rawInput by remember { mutableStateOf(supportsRawTerminalInput) }
@@ -218,7 +222,6 @@ internal fun BuildTerminalContent(
             // Carriage return, not line feed: apps in raw mode read the byte
             // directly and only CR counts as Enter.
             onSubmitLine(line + "\r")
-            input = ""
         }
     }
 
@@ -365,7 +368,7 @@ internal fun BuildTerminalContent(
                             }
                             TextField(
                                 value = input,
-                                onValueChange = { input = it },
+                                onValueChange = onInputChange,
                                 modifier = Modifier.weight(1f).focusRequester(inputFocus),
                                 enabled = busy,
                                 textStyle = monoStyle(14.sp, AnsiPalette[7]),
@@ -399,6 +402,11 @@ internal fun BuildTerminalContent(
                         }
 
                         if (busy && !rawInput) {
+                            SpeechInputControl(
+                                onTranscript = onTranscript,
+                                target = VoiceInputTarget.TerminalCommandLine(session.id),
+                                modifier = Modifier,
+                            )
                             IconButton(onClick = submit, modifier = Modifier.handCursor()) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.Send,

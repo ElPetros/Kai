@@ -69,7 +69,9 @@ data class KaiBuildActions(
     val startSession: (String?) -> Unit,
     val selectSession: (String) -> Unit,
     val closeSession: (String) -> Unit,
-    val submitLine: (String) -> Unit,
+    val submitLine: (String, String) -> Unit,
+    val setTerminalDraft: (String, String) -> Unit,
+    val insertTerminalTranscript: (String, String) -> Boolean,
     val sendKey: (TerminalKey, TerminalModifiers) -> Unit,
     val sendText: (String, TerminalModifiers) -> Unit,
     val sendMouse: (String) -> Unit,
@@ -90,6 +92,7 @@ fun KaiBuildScreen(
     viewModel: KaiBuildViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val terminalDrafts by viewModel.terminalDrafts.collectAsStateWithLifecycle()
     val actions = remember(viewModel) {
         KaiBuildActions(
             toggleAgent = viewModel::toggleAgent,
@@ -107,6 +110,8 @@ fun KaiBuildScreen(
             selectSession = viewModel::selectSession,
             closeSession = viewModel::closeSession,
             submitLine = viewModel::submitLine,
+            setTerminalDraft = viewModel::setTerminalDraft,
+            insertTerminalTranscript = viewModel::insertTerminalTranscript,
             sendKey = viewModel::sendKey,
             sendText = viewModel::sendText,
             sendMouse = viewModel::sendMouse,
@@ -114,12 +119,19 @@ fun KaiBuildScreen(
         )
     }
 
-    KaiBuildScreenContent(state = state, actions = actions, onExit = onExit, modifier = modifier)
+    KaiBuildScreenContent(
+        state = state,
+        terminalDrafts = terminalDrafts,
+        actions = actions,
+        onExit = onExit,
+        modifier = modifier,
+    )
 }
 
 @Composable
 internal fun KaiBuildScreenContent(
     state: KaiBuildUiState,
+    terminalDrafts: Map<String, String>,
     actions: KaiBuildActions,
     onExit: () -> Unit,
     modifier: Modifier = Modifier,
@@ -196,7 +208,10 @@ internal fun KaiBuildScreenContent(
 
                     session != null -> BuildTerminalContent(
                         session = session,
-                        onSubmitLine = actions.submitLine,
+                        input = terminalDrafts[session.id].orEmpty(),
+                        onInputChange = { actions.setTerminalDraft(session.id, it) },
+                        onTranscript = { transcript -> actions.insertTerminalTranscript(session.id, transcript) },
+                        onSubmitLine = { line -> actions.submitLine(session.id, line) },
                         onKey = actions.sendKey,
                         onText = actions.sendText,
                         onMouse = actions.sendMouse,

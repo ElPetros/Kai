@@ -1,0 +1,65 @@
+name: Android Speech Build
+
+on:
+  pull_request:
+    branches:
+      - feature/offline-speech-input
+    paths:
+      - "androidApp/**"
+      - "composeApp/**"
+      - "gradle/**"
+      - "settings.gradle.kts"
+      - "build.gradle.kts"
+      - ".github/workflows/android-speech-build.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-speechtest-and-device-test:
+    name: Build Speech Test app and benchmark test APKs
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          accept-android-sdk-licenses: true
+
+      - name: Install Android build packages
+        run: sdkmanager "platforms;android-37.0" "ndk;29.0.14206865"
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-android-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'gradle/libs.versions.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-android-
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+
+      - name: Assemble isolated Speech Test app and Android device-test APK
+        run: ./gradlew :androidApp:assembleFossDebug :composeApp:assembleAndroidDeviceTest --no-daemon --stacktrace
+
+      - name: Upload installable APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: kai-speechtest-and-benchmark-apks
+          path: |
+            androidApp/build/outputs/apk/foss/debug/*.apk
+            composeApp/build/outputs/**/*.apk
+          if-no-files-found: error
+          retention-days: 7

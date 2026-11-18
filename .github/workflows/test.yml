@@ -12,29 +12,15 @@ jobs:
   test:
     name: Run Unit Tests
     runs-on: ubuntu-latest
-    if: |
-      !contains(github.event.head_commit.message, '[skip ci]') &&
-      github.actor != 'github-actions[bot]'
 
     permissions:
-      contents: write
+      contents: read
 
     steps:
-      - name: Checkout repository
+      - name: Checkout exact event commit
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref || github.ref }}
-
-      - name: Check if fork PR
-        id: fork-check
-        if: github.event_name == 'pull_request'
-        run: |
-          if [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
-            echo "is_fork=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_fork=false" >> $GITHUB_OUTPUT
-          fi
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
@@ -65,49 +51,25 @@ jobs:
           echo "JAVA_HOME: $JAVA_HOME"
           java -version
 
-      - name: Run spotlessApply
-        run: ./gradlew spotlessApply --no-daemon --stacktrace
+      - name: Check Kotlin and Gradle formatting
+        run: ./gradlew spotlessCheck --no-daemon --stacktrace
 
-      - name: Run updateScreenshots
-        run: ./gradlew :screenshotTests:updateScreenshots --no-daemon --stacktrace
+      # Paparazzi baselines are intentionally gitignored in this project.
+      # Run the screenshot tests in record mode to exercise rendering without
+      # claiming a visual-regression comparison against committed golden images.
+      - name: Run screenshot rendering tests (no baseline comparison)
+        run: ./gradlew :screenshotTests:recordPaparazziDebug --no-daemon --stacktrace
 
-      - name: Install cwebp
-        run: sudo apt-get update && sudo apt-get install -y webp
-
-      - name: Convert site images to WebP
-        run: ./scripts/convert-site-images-to-webp.sh
+      - name: Verify site images are converted
+        shell: bash
+        run: |
+          set -euo pipefail
+          unconverted=$(find site/img -maxdepth 1 -type f -name '*.png' ! -name 'og-preview.png' ! -name 'preview.png' -print)
+          if [[ -n "$unconverted" ]]; then
+            echo "::error::Unconverted site images found. Run ./scripts/convert-site-images-to-webp.sh locally, review the changes, and commit them."
+            printf '%s\n' "$unconverted"
+            exit 1
+          fi
 
       - name: Run desktop tests
         run: ./gradlew :composeApp:desktopTest --no-daemon --stacktrace
-
-      - name: Check for changes
-        id: changes
-        run: |
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "has_changes=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_changes=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Fail if fork PR has changes
-        if: |
-          steps.changes.outputs.has_changes == 'true' &&
-          steps.fork-check.outputs.is_fork == 'true'
-        run: |
-          echo "::error::This PR from a fork requires formatting or screenshot updates."
-          echo "Please run the following commands locally and push the changes:"
-          echo "  ./gradlew spotlessApply"
-          echo "  ./gradlew :screenshotTests:updateScreenshots"
-          echo "  ./scripts/convert-site-images-to-webp.sh"
-          exit 1
-
-      - name: Commit and push changes
-        if: |
-          steps.changes.outputs.has_changes == 'true' &&
-          (github.event_name == 'push' || steps.fork-check.outputs.is_fork == 'false')
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add -A
-          git commit -m "Auto-fix: spotlessApply and updateScreenshots [skip ci]"
-          git push
