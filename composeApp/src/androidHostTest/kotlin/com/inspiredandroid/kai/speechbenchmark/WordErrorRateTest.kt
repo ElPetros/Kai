@@ -16,8 +16,8 @@ class WordErrorRateTest {
     @Test
     fun countsSubstitutionsDeletionsAndInsertions() {
         val result = WordErrorRate.score(
-            reference = "the quick brown fox",
-            hypothesis = "the slow fox jumps",
+            reference = "a b c d",
+            hypothesis = "a x d extra",
         )
 
         assertEquals(1, result.substitutions)
