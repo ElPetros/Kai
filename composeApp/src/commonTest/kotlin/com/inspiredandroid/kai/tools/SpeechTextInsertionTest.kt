@@ -25,7 +25,7 @@ class SpeechTextInsertionTest {
     fun ignoresBlankRecognition() {
         assertEquals("Keep this", appendSpeechTranscript("Keep this", "   "))
     }
-    
+
     @Test
     fun automaticSendingRequiresExplicitOptIn() {
         assertFalse(shouldAutoSendSpeechTranscript(false, "", false))
