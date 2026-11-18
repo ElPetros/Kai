@@ -16,6 +16,14 @@ Keep the current quantized Moonshine v2 Tiny English integration as the function
 - App behavior: bounded 60-second capture, Stop-to-transcribe, transcript inserted as an editable draft; no automatic submission.
 - Real-device status: two successful user-reported exact transcriptions on Samsung Galaxy A36 (SM-S366V). This is functional smoke-test evidence, not a comparative accuracy benchmark.
 
+## Candidate A — Moonshine v2 Base English
+
+- Model: quantized Moonshine v2 Base English, using the same sherpa-onnx Moonshine runtime family as the current Tiny baseline.
+- The official Moonshine model catalogue lists English Base as MIT-licensed and reports a quantized package around 135 MB, compared with the current Tiny package around 43 MiB. The larger decoder/model footprint is a real device-cost risk, not an automatic quality win.
+- The sherpa-onnx v2.0.1 Kotlin API exposes the Moonshine v2 `encoder` and `mergedDecoder` fields, matching the model's two-file runtime layout.
+- This is a same-family size/accuracy challenger, not an independent architecture comparison. Verify exact archive size, SHA-256, license notice, and load/runtime behavior on the Galaxy A36 before benchmarking.
+- Do not change the installed Tiny baseline or the user-facing default while evaluating Base.
+
 ## Candidate
 
 - Model family: sherpa-onnx Zipformer, GigaSpeech-trained English offline transducer.
@@ -32,7 +40,7 @@ The sherpa-onnx catalogue also lists `csukuangfj/sherpa-onnx-zipformer-small-en-
 
 ## Candidate decision gate
 
-The GigaSpeech candidate remains a research lead only until the checkpoint's weight-license and redistribution rights are clear. A smaller alternative is not automatically cleared: verify the license for the actual weights, not only the training code or dataset. If no candidate has clearly documented redistribution rights compatible with Kai's open-source distribution goals, keep Moonshine as the baseline and select a different challenger.
+The GigaSpeech candidate remains a research lead only until the checkpoint's weight-license and redistribution rights are clear. The LibriSpeech Zipformer alternative is also not cleared until its actual weight license is verified. Moonshine v2 Base English is the current clearly documented MIT-licensed challenger to investigate first, subject to exact package provenance and on-device resource checks. If its resource cost is unacceptable, keep Tiny as the baseline and continue looking for another clearly licensed challenger.
 
 ## Test corpus
 
