@@ -38,7 +38,7 @@ Important distinction: the local speech recognition succeeded. The later AI-prov
 
 ## Evidence package
 
-The evidence ZIP delivered in the conversation is `kai9000-speech-evidence.zip`. It now contains **seven still images** and a README with descriptions, source timestamps where applicable, SHA-256 hashes, provenance, and limitations.
+The evidence ZIP delivered in the conversation is `kai9000-speech-evidence.zip`. It contains **seven still images** and a README with descriptions, source timestamps where applicable, SHA-256 hashes, provenance, and limitations. The evidence index has now been committed to the active feature branch at `docs/evidence/kai-speech-device-test-2026-11-17/README.md` (commit `cdb611616656dfbb2bc9c16b05f581038308fa5d`).
 
 - `00-before-speech-microphone.jpg` — separate user-supplied original Kai 9000 screen capture showing the composer before speech-microphone integration. The composer displays “Ask a question”, an attachment control, and the lightbulb/action control; no microphone control is visible. SHA-256: `47f462ed88d6f6007681ef3ae5c503e9183f8f0fc4765972fea4f4a695975dc6`.
 - `01-idle-speech-control.jpg` — 0s, idle speech interface.
@@ -50,13 +50,13 @@ The evidence ZIP delivered in the conversation is `kai9000-speech-evidence.zip`.
 
 The pre-feature image is a user-supplied screenshot, not a video frame. The six workflow images are extracted from the supplied 47.85-second video. The screenshot and video together now support a before/after interface comparison as well as the end-to-end workflow. The ZIP has been regenerated to include the baseline screenshot.
 
-**Repository binary status:** the screenshot/JPEG files are packaged in the conversation ZIP but have not yet been committed as binary assets in GitHub. Do not claim they are already present in the repository. The checkpoint text is saved here; adding the image binaries under `docs/evidence/kai-speech-device-test-2026-11-17/` remains a discrete task.
+**Repository binary status:** the screenshot/JPEG files are packaged in the conversation ZIP but have not yet been committed as binary assets in GitHub. Do not claim they are already present in the repository. The evidence README and manifest are committed; adding the image binaries remains a discrete task.
 
 ## Evaluation status and next work
 
 - Two successful on-device examples are a positive functional smoke test, not a statistically meaningful accuracy benchmark.
 - Moonshine v2 Tiny remains the initial baseline, not a final model winner.
-- Planned model comparison remains Zipformer GigaSpeech versus Moonshine, using matched Earnings-22, TED-LIUM 3, and LibriSpeech test-clean clips. Measure WER, real-time factor, model load time, peak memory, and failure rate.
+- A controlled model-evaluation plan is now committed at `docs/speech-engine-evaluation-plan.md` (commit `e00d1cbba0ec59fc4b30d1902f7a19b07ce4512c`). It keeps Moonshine as the working baseline and defines Zipformer GigaSpeech as a challenger, with matched Earnings-22, TED-LIUM 3, and LibriSpeech test-clean clips; WER, real-time factor, model load time, memory, footprint, and failures are measured on the actual A36. No comparative device result exists yet.
 - Do not implement live partials, VAD, automatic language detection, or second-pass verification until evidence shows they are needed.
 - Terminal workgroups are an architecture/design contract, not a completed multi-terminal implementation.
 
@@ -64,9 +64,9 @@ The pre-feature image is a user-supplied screenshot, not a video frame. The six 
 
 1. Resume in `ElPetros/Kai`, branch `feature/offline-speech-input`, not any Chat Sentinel repository.
 2. Re-establish the local checkout identity before running Git commands. Do not initialize or overwrite `/root/projects/test-repo` unless its remote and contents prove it is the Kai checkout.
-3. Commit the seven JPEGs from the evidence ZIP under `docs/evidence/kai-speech-device-test-2026-11-17/` and link them from an evidence index. The ZIP is available in the prior ChatGPT conversation; it is not yet committed by this checkpoint.
-4. Review PR #1 and update its description to reflect that real-device smoke testing has passed, while preserving the caveat that the sample is small and accuracy evaluation remains outstanding.
-5. Continue with documentation/evidence first. No merge, release, deployment, or unrelated source changes without explicit approval.
+3. Evidence README/index is committed. Upload the seven JPEG binaries from the prepared ZIP to `docs/evidence/kai-speech-device-test-2026-11-17/`; the GitHub connection used so far can create text files but has no direct binary upload from the ZIP.
+4. PR #1 description has been updated to reflect successful real-device smoke testing, the separate provider-limit issue, the evidence index, and the remaining benchmark work.
+5. Continue with the reproducible benchmark harness and candidate model compatibility investigation. No merge, release, deployment, or changes to the user-facing default model without explicit approval.
 
 ## Build and CI evidence
 
