@@ -8,7 +8,7 @@
 - GitHub repository: [ElPetros/Kai](https://github.com/ElPetros/Kai), a fork of SimonSchubert/Kai.
 - Primary speech implementation branch: `feature/offline-speech-input`.
 - Isolated benchmark development branch: `feature/speech-benchmark-harness` (based on the verified recovery checkpoint).
-- Benchmark branch head immediately before this checkpoint update: `cc7310b880d367a8919b589b73d9d7c2dd5b07e7`.
+- Benchmark branch head immediately before this checkpoint update: `2427f64e19f6383624d43c70aebe04d19cb8810b`.
 - Original speech implementation head before checkpoint-only updates: `e00d1cbba0ec59fc4b30d1902f7a19b07ce4512c`.
 - Verified commit: [Add controlled offline speech model evaluation plan](https://github.com/ElPetros/Kai/commit/e00d1cbba0ec59fc4b30d1902f7a19b07ce4512c).
 - Open draft PR [#1 — Add Android offline speech input](https://github.com/ElPetros/Kai/pull/1) remains the original speech feature PR, targeting `main`; do not merge it as part of benchmark work.
@@ -105,10 +105,12 @@ Committed foundations:
 - `WordErrorRateTest.kt`: exact match, substitution, deletion, insertion, punctuation/case/apostrophe handling, empty-reference behavior, and number-token policy tests.
 - `SpeechBenchmarkManifest.kt` and `SpeechBenchmarkManifestValidatorTest.kt`: versioned manifest data model and validation for unique IDs, safe relative paths, SHA-256 syntax, mono 16 kHz prepared audio, positive durations, and non-empty references.
 - `SpeechBenchmarkResults.kt` and `SpeechBenchmarkAggregatorTest.kt`: per-clip success/failure model and aggregate accuracy/latency/failure metrics. Corpus WER is weighted by reference word count; failed clips remain visible in failure rate but are excluded from WER and latency.
-- `docs/speech-benchmark-harness.md`: design, privacy boundaries, current status, and next steps.
-- `.github/workflows/speech-benchmark-core.yml`: branch-scoped workflow intended to run `spotlessCheck` and `:composeApp:desktopTest`.
+- `SpeechBenchmarkJson.kt` and `SpeechBenchmarkJsonTest.kt`: strict local JSON encode/decode for manifests and reports. Manifest validation runs on read/write; report aggregates are recomputed and checked against per-clip results.
+- `docs/speech-benchmark-harness.md`: design, privacy boundaries, candidate licensing status, current status, and next steps.
+- `docs/speech-engine-evaluation-plan.md`: candidate review now puts MIT-licensed Moonshine v2 Base English first for investigation; GigaSpeech Zipformer is held pending model-weight redistribution rights; LibriSpeech Zipformer weight license remains unverified.
+- `.github/workflows/speech-benchmark-core.yml`: PR-scoped workflow runs `spotlessCheck` and `:composeApp:desktopTest`, with concurrency cancellation to avoid duplicate/superseded checks.
 
-**Verification status:** the files are committed, but a completed Gradle/CI pass has not yet been confirmed. Do not describe these tests as passed until the workflow result is inspected. No device runner, JSON file I/O, model challenger load, or comparative Galaxy A36 benchmark has been implemented or run.
+**Verification status:** the first CI attempt found a ktlint spacing issue in the WER scorer; that formatting issue was corrected. The latest PR workflow run at checkpoint time was pending (run 35, head `2427f64e19f6383624d43c70aebe04d19cb8810b`); no green Gradle test result has yet been confirmed. Inspect the latest run before claiming tests pass. No Android device runner or actual device benchmark has been implemented or run. JSON codec logic is implemented and unit-tested in source, but test execution is still pending.
 
 ## 7. Exact next development point
 
