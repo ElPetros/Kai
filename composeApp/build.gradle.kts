@@ -152,18 +152,6 @@ kotlin {
             }
         }
         getByName("androidDeviceTest") {
-            // Reuse only the benchmark's non-test core files. Do not pull the
-            // complete commonTest tree into the installable instrumentation APK.
-            kotlin.srcDir(
-                fileTree("src/commonTest/kotlin/com/inspiredandroid/kai/speechbenchmark") {
-                    include(
-                        "SpeechBenchmarkJson.kt",
-                        "SpeechBenchmarkManifest.kt",
-                        "SpeechBenchmarkResults.kt",
-                        "WordErrorRate.kt",
-                    )
-                },
-            )
             dependencies {
                 implementation(libs.androidx.test.runner)
                 implementation(libs.androidx.test.core)
