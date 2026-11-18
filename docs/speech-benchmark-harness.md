@@ -1,6 +1,6 @@
 # Kai 9000 — offline speech benchmark harness
 
-Status: **scoring foundation added; device runner and comparative measurements not yet implemented.**
+Status: **scoring, manifest validation, and aggregation foundations added; device runner and comparative measurements not yet implemented.**
 
 This work is isolated on `feature/speech-benchmark-harness`, based on the verified recovery checkpoint. It does not change the user-facing speech implementation or the original feature branch.
 
@@ -35,6 +35,14 @@ The scorer reports substitutions, deletions, insertions, reference and hypothesi
 
 Tests cover exact matches, each edit operation, punctuation/case normalization, apostrophes, empty references/hypotheses, and the fact that number words are not silently converted to digits.
 
+### Manifest validation
+
+\`SpeechBenchmarkManifest.kt\` defines a versioned manifest and validates non-empty dataset/release/split metadata, unique clip IDs, safe relative audio paths (no absolute paths, traversal, or Windows separators), SHA-256 syntax, mono 16 kHz prepared audio, positive duration, and non-empty reference text. Validation is structural; the future device runner must still verify the actual file bytes against each SHA-256.
+
+### Result and aggregate model
+
+\`SpeechBenchmarkResults.kt\` records model/device/build metadata and per-clip success or failure. Failed clips remain visible in the failure rate but are excluded from WER and latency summaries. Corpus WER is computed from summed S/D/I counts divided by summed reference words. Median inference time and median real-time factor are reported, along with min/max latency and optional model-size/memory observations. Empty or all-failed runs return null accuracy/latency values instead of invented zeros.
+
 ## Required benchmark runner design
 
 The device runner should be a test/debug-only path and should implement these stages:
@@ -57,19 +65,18 @@ The device runner should be a test/debug-only path and should implement these st
 
 ## Current verification status
 
-- WER scorer and unit tests have been committed to this branch.
-- The scorer has not yet been executed by Gradle CI. The existing repository workflow only runs on pushes to `main` and pull requests targeting `main`; this feature branch is intentionally not the base of the existing speech PR. A dedicated branch-scoped test workflow is being added to run ` :composeApp:desktopTest ` for this isolated benchmark foundation.
+- WER scorer, manifest validator, aggregate result model, and corresponding unit tests have been committed to this branch.
+- The tests have not yet been confirmed by a completed Gradle CI run. The existing repository workflow only runs on pushes to `main` and pull requests targeting `main`; this feature branch is intentionally not the base of the existing speech PR. A dedicated branch-scoped test workflow is being added to run ` :composeApp:desktopTest ` for this isolated benchmark foundation.
 - No Android benchmark runner exists yet.
 - No candidate model has been downloaded, loaded, or benchmarked on the A36.
 - No comparative result or model-selection decision exists.
 
 ## Next implementation steps
 
-1. Get the WER tests running in CI and fix any compile/test/format issues.
-2. Add a versioned clip-manifest model and strict validation tests.
-3. Add a machine-readable per-clip/aggregate result model and aggregation tests.
-4. Inspect sherpa-onnx 2.0.1 APIs and Android test/build source sets before implementing the device adapter.
-5. Implement a one-model-at-a-time Android runner that can reuse the existing Moonshine recognizer path without changing the production speech flow.
-6. Validate the Zipformer candidate package, checksum, license, runtime API compatibility, and actual installed footprint before loading it on-device.
+1. Get the WER, manifest, and aggregation tests running in CI; fix compile/test/format issues.
+2. Add a JSON reader/writer and schema-versioned local manifest/result format.
+3. Inspect sherpa-onnx 2.0.1 APIs and Android test/build source sets before implementing the device adapter.
+4. Implement a one-model-at-a-time Android runner that can reuse the existing Moonshine recognizer path without changing the production speech flow.
+5. Validate the Zipformer candidate package, checksum, license, runtime API compatibility, and actual installed footprint before loading it on-device.
 
 Update this document and the recovery checkpoint after each verified milestone. A source commit alone is not proof that tests passed.
