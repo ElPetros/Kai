@@ -8,7 +8,7 @@
 - GitHub repository: [ElPetros/Kai](https://github.com/ElPetros/Kai), a fork of SimonSchubert/Kai.
 - Primary speech implementation branch: `feature/offline-speech-input`.
 - Isolated benchmark development branch: `feature/speech-benchmark-harness` (based on the verified recovery checkpoint).
-- Benchmark branch head immediately before this checkpoint update: `2427f64e19f6383624d43c70aebe04d19cb8810b`.
+- Benchmark branch head immediately before this checkpoint update: `e102ad30b6461c76d2f7888856fd442e70a3d30b`.
 - Original speech implementation head before checkpoint-only updates: `e00d1cbba0ec59fc4b30d1902f7a19b07ce4512c`.
 - Verified commit: [Add controlled offline speech model evaluation plan](https://github.com/ElPetros/Kai/commit/e00d1cbba0ec59fc4b30d1902f7a19b07ce4512c).
 - Open draft PR [#1 — Add Android offline speech input](https://github.com/ElPetros/Kai/pull/1) remains the original speech feature PR, targeting `main`; do not merge it as part of benchmark work.
@@ -110,7 +110,13 @@ Committed foundations:
 - `docs/speech-engine-evaluation-plan.md`: candidate review now puts MIT-licensed Moonshine v2 Base English first for investigation; GigaSpeech Zipformer is held pending model-weight redistribution rights; LibriSpeech Zipformer weight license remains unverified.
 - `.github/workflows/speech-benchmark-core.yml`: PR-scoped workflow runs `spotlessCheck` and `:composeApp:desktopTest`, with concurrency cancellation to avoid duplicate/superseded checks.
 
-**Verification status:** the first CI attempt found a ktlint spacing issue in the WER scorer; that formatting issue was corrected. The latest PR workflow run at checkpoint time was pending (run 35, head `2427f64e19f6383624d43c70aebe04d19cb8810b`); no green Gradle test result has yet been confirmed. Inspect the latest run before claiming tests pass. No Android device runner or actual device benchmark has been implemented or run. JSON codec logic is implemented and unit-tested in source, but test execution is still pending.
+**Verification status:** CI exposed two successive Spotless formatting differences in `WordErrorRate.kt`; both have been corrected in the current branch head. Earlier CI attempts stopped at `spotlessKotlinCheck`, so the `desktopTest` suite has not yet been reached. The latest PR workflow run at checkpoint time was pending (run 38, head `e102ad30b6461c76d2f7888856fd442e70a3d30b`). Inspect that run and any newer run before claiming formatting or tests pass. No Android device runner or actual device benchmark has been implemented or run. JSON codec logic is implemented and has unit tests in source, but test execution is still pending.
+
+
+
+### Android device-test path confirmed (not yet enabled)
+
+The current module uses the Android KMP library plugin and currently opts in only to `withHostTest {}`. Official AGP documentation confirms that `withDeviceTest` creates the `androidDeviceTest` source set. To reuse shared benchmark code in that device-test compilation, the documented builder form can set `sourceSetTreeName = "test"`, with `AndroidJUnitRunner` configured. This has been researched but **not yet added to the build**; instrumentation dependencies and the actual A36 task still need validation. Reference: https://developer.android.com/kotlin/multiplatform/plugin
 
 ## 7. Exact next development point
 
