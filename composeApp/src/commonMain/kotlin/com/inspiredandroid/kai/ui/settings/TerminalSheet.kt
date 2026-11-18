@@ -44,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -60,6 +61,9 @@ import com.inspiredandroid.kai.SandboxController
 import com.inspiredandroid.kai.SandboxSessions
 import com.inspiredandroid.kai.TerminalLine
 import com.inspiredandroid.kai.linux.LinuxDistro
+import com.inspiredandroid.kai.tools.SpeechInputControl
+import com.inspiredandroid.kai.tools.VoiceInputTarget
+import com.inspiredandroid.kai.tools.appendSpeechTranscript
 import com.inspiredandroid.kai.ui.handCursor
 import com.inspiredandroid.kai.ui.sandbox.SandboxSessionViewModel
 import kai.composeapp.generated.resources.Res
@@ -424,6 +428,21 @@ fun TerminalContent(
                 ),
                 singleLine = true,
             )
+            if (sessionViewModel != null && selectedSessionId != null) {
+                val targetSessionId = selectedSessionId
+                SpeechInputControl(
+                    onTranscript = { transcript ->
+                        sessionViewModel.inputTextForSession(targetSessionId)?.let { draft ->
+                            sessionViewModel.setInputTextForSession(
+                                targetSessionId,
+                                appendSpeechTranscript(draft, transcript),
+                            )
+                        }
+                    },
+                    target = VoiceInputTarget.TerminalCommandLine(targetSessionId),
+                    modifier = Modifier,
+                )
+            }
             IconButton(
                 onClick = {
                     when {
