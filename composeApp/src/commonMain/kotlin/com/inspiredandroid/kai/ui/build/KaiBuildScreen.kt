@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.inspiredandroid.kai.KAI_BUILD_FILES
 import com.inspiredandroid.kai.PlatformBackHandler
-import com.inspiredandroid.kai.tools.VoiceInputTarget
 import com.inspiredandroid.kai.build.BuildAgents
 import com.inspiredandroid.kai.build.terminal.TerminalKey
 import com.inspiredandroid.kai.build.terminal.TerminalModifiers
