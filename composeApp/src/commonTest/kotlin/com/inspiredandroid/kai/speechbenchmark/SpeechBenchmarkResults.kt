@@ -145,10 +145,10 @@ internal object SpeechBenchmarkAggregator {
             insertions = insertions,
             referenceWordCount = referenceWordCount,
             corpusWordErrorRate = if (referenceWordCount == 0) null else totalErrors.toDouble() / referenceWordCount,
-            medianInferenceMillis = median(inferenceTimes),
+            medianInferenceMillis = medianLong(inferenceTimes),
             minInferenceMillis = inferenceTimes.firstOrNull(),
             maxInferenceMillis = inferenceTimes.lastOrNull(),
-            medianRealTimeFactor = median(realTimeFactors),
+            medianRealTimeFactor = medianDouble(realTimeFactors),
             modelLoadMillis = run.modelLoadMillis,
             installedModelBytes = run.installedModelBytes,
             memoryBeforeBytes = run.memoryBeforeBytes,
@@ -156,7 +156,7 @@ internal object SpeechBenchmarkAggregator {
         )
     }
 
-    private fun median(sortedValues: List<Long>): Double? {
+    private fun medianLong(sortedValues: List<Long>): Double? {
         if (sortedValues.isEmpty()) return null
         val middle = sortedValues.size / 2
         return if (sortedValues.size % 2 == 1) {
@@ -166,7 +166,7 @@ internal object SpeechBenchmarkAggregator {
         }
     }
 
-    private fun median(sortedValues: List<Double>): Double? {
+    private fun medianDouble(sortedValues: List<Double>): Double? {
         if (sortedValues.isEmpty()) return null
         val middle = sortedValues.size / 2
         return if (sortedValues.size % 2 == 1) {
