@@ -140,14 +140,9 @@ actual fun SpeechInputControl(
                                 return@launch
                             }
 
-                            if (!modelStore.isInstalled()) {
-                                status = preparingText
-                                modelStore.ensureInstalled()
-                                state = SpeechInputState.Ready
-                                status = modelReadyText
-                                return@launch
-                            }
-
+                            // Acquire global voice ownership before model preparation as well as
+                            // recording. Otherwise two controls can race to install into the
+                            // same shared staging directory on first use.
                             val acquiredSession = voiceCoordinator.begin(
                                 mode = VoiceInteractionMode.DICTATION,
                                 target = target,
@@ -158,6 +153,15 @@ actual fun SpeechInputControl(
                                 return@launch
                             }
                             voiceSession = acquiredSession
+
+                            if (!modelStore.isInstalled()) {
+                                status = preparingText
+                                modelStore.ensureInstalled()
+                                state = SpeechInputState.Ready
+                                status = modelReadyText
+                                return@launch
+                            }
+
                             val sessionId = acquiredSession.id
                             status = recordingText
                             val samples = captureSpeech(
