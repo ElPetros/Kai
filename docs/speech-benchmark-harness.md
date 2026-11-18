@@ -74,14 +74,14 @@ The device runner should be a test/debug-only path and should implement these st
 ## Current verification status
 
 - WER scorer, manifest validator, aggregate result model, strict JSON codec, and corresponding unit tests have been committed to this branch.
-- The dedicated GitHub Actions workflow has started; its final conclusion still needs to be checked before calling the test suite green. The existing repository workflow only runs on pushes to `main` and pull requests targeting `main`; this feature branch is intentionally not the base of the existing speech PR. A dedicated branch-scoped test workflow is being added to run ` :composeApp:desktopTest ` for this isolated benchmark foundation.
+- The dedicated GitHub Actions workflow is configured to run `spotlessCheck` and `:composeApp:desktopTest` for benchmark source changes, with a manual `workflow_dispatch` entry point. Documentation-only edits no longer trigger the build.
 - No Android benchmark runner exists yet.
 - No candidate model has been downloaded, loaded, or benchmarked on the A36.
 - No comparative result or model-selection decision exists.
 
 ## Next implementation steps
 
-1. Confirm the current CI run and fix any compile/test/format issues.
+1. Confirm a green CI run after the outstanding Spotless branch-spacing correction; do not claim the tests passed before the workflow completes.
 2. Enable a dedicated Android device-test source set only after confirming its Gradle configuration and instrumentation dependencies.
 3. Implement a one-model-at-a-time Android runner that can reuse the existing Moonshine recognizer path without changing the production speech flow.
 4. Add explicit local corpus import and audio-hash verification; do not bundle or upload dataset recordings.

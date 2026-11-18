@@ -6,11 +6,13 @@ on:
       - feature/offline-speech-input
     paths:
       - "composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/speechbenchmark/**"
-      - "docs/speech-benchmark-harness.md"
-      - ".github/workflows/speech-benchmark-core.yml"
+      - "composeApp/build.gradle.kts"
+      - "build.gradle.kts"
+      - "gradle/libs.versions.toml"
+  workflow_dispatch:
 
 concurrency:
-  group: speech-benchmark-core-v2-${{ github.event.pull_request.number || github.ref }}
+  group: speech-benchmark-core-v3-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:

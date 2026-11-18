@@ -76,15 +76,18 @@ internal object WordErrorRate {
                     i--
                     j--
                 }
+
                 i > 0 && j > 0 && operations[i][j] == SUBSTITUTE -> {
                     substitutions++
                     i--
                     j--
                 }
+
                 i > 0 && (j == 0 || operations[i][j] == DELETE) -> {
                     deletions++
                     i--
                 }
+
                 j > 0 -> {
                     insertions++
                     j--

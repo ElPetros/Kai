@@ -154,3 +154,11 @@ When the user returns:
 The user can start a future session with:
 
 > Resume Kai 9000 from the verified November 18 recovery checkpoint in ElPetros/Kai. Connect to GitHub, verify the speech branch, benchmark branch, and PR #1/#2 heads, inspect CI, then continue from the first unfinished benchmark task. Do not restart completed work or touch Chat Sentinel.
+
+
+### CI notification incident and corrective action — 2026-11-18
+
+- Review of the recent commit history confirms the formatting repair sequence: `7338cfeed77381eaf57f3c75af0ef0a21350f14a` applied the Spotless branch-spacing rule to the first `when` block; `e102ad30b6461c76d2f7888856fd442e70a3d30b` corrected expression wrapping after a subsequent Spotless report. The reverse-counting `when` block retained three missing blank lines, so repeated checks continued to fail at the same formatting gate.
+- Workflow run #41 (head `269e3d4`) confirms the failure is formatting-only at this point; the shared benchmark test task was not reached. Do not characterize this as a speech runtime failure or a failing benchmark unit test.
+- The correction consolidates the remaining source formatting, narrows path filters so documentation-only edits do not start this build, adds a manual `workflow_dispatch` entry point, and refreshes the concurrency group. The PR remains draft and unmerged; no production speech code or Chat Sentinel files are changed.
+- The next required evidence is a successful workflow run that completes both `spotlessCheck` and `:composeApp:desktopTest`. Until then, CI remains unverified.
