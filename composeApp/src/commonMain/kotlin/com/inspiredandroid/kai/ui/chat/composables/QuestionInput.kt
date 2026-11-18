@@ -63,6 +63,7 @@ import com.inspiredandroid.kai.data.ServiceEntry
 import com.inspiredandroid.kai.data.imageExtensions
 import com.inspiredandroid.kai.skills.SkillManifest
 import com.inspiredandroid.kai.tools.SpeechInputControl
+import com.inspiredandroid.kai.tools.shouldAutoSendSpeechTranscript
 import com.inspiredandroid.kai.tools.VoiceInputTarget
 import com.inspiredandroid.kai.ui.gradientBrush
 import com.inspiredandroid.kai.ui.handCursor
@@ -113,8 +114,11 @@ fun QuestionInput(
             val recognizedText = transcript.trim()
             if (recognizedText.isNotEmpty()) {
                 val currentDraft = latestTextState.value
-                val canSendAutomatically = autoSendSpeech &&
-                    currentDraft.text.isBlank() && latestFiles.value.isEmpty()
+                val canSendAutomatically = shouldAutoSendSpeechTranscript(
+                    enabled = autoSendSpeech,
+                    currentDraft = currentDraft.text,
+                    hasAttachments = latestFiles.value.isNotEmpty(),
+                )
                 if (canSendAutomatically) {
                     latestAsk.value(recognizedText)
                 } else {
