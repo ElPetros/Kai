@@ -21,4 +21,5 @@ internal fun shouldAutoSendSpeechTranscript(
     enabled: Boolean,
     currentDraft: String,
     hasAttachments: Boolean,
-): Boolean = enabled && currentDraft.isBlank() && !hasAttachments
+    isLoading: Boolean,
+): Boolean = enabled && currentDraft.isBlank() && !hasAttachments && !isLoading
