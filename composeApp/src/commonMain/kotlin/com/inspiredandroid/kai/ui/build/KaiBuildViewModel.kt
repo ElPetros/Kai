@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
@@ -39,6 +40,10 @@ class KaiBuildViewModel(
     private val selectedAgents = MutableStateFlow<ImmutableSet<String>>(persistentSetOf())
     private val launchAgentId = MutableStateFlow(dataRepository.getKaiBuildLaunchAgent())
     private val openProject = MutableStateFlow<String?>(null)
+    private val mutableTerminalDrafts = MutableStateFlow<Map<String, String>>(emptyMap())
+
+    /** Draft text keyed by the stable terminal session ID, never by the visible tab. */
+    val terminalDrafts: StateFlow<Map<String, String>> = mutableTerminalDrafts.asStateFlow()
 
     val uiState: StateFlow<KaiBuildUiState> = combine(
         controller.state,
@@ -139,16 +144,48 @@ class KaiBuildViewModel(
     /** Closes one tab; closing the last one of the project steps back to the list. */
     fun closeSession(id: String) {
         controller.closeSession(id)
+        if (controller.state.value.sessions.none { it.id == id }) {
+            mutableTerminalDrafts.value = mutableTerminalDrafts.value - id
+        }
         val project = openProject.value ?: return
         if (controller.state.value.sessions.none { it.project == project }) {
             openProject.value = null
         }
     }
 
-    /** Submits a finished input line (caller includes the trailing carriage return). */
-    fun submitLine(text: String) {
-        if (openProject.value == null) return
+    /** Updates only a draft whose terminal session still exists in the open project. */
+    fun setTerminalDraft(sessionId: String, text: String) {
+        val session = controller.state.value.sessions.firstOrNull { it.id == sessionId } ?: return
+        if (session.project != openProject.value) return
+        mutableTerminalDrafts.value = if (text.isEmpty()) {
+            mutableTerminalDrafts.value - sessionId
+        } else {
+            mutableTerminalDrafts.value + (sessionId to text)
+        }
+    }
+
+    /**
+     * Appends dictation to its original terminal draft. A late result is rejected
+     * if that session was closed or its project is no longer open; it is never
+     * redirected to whichever terminal happens to be active now.
+     */
+    fun insertTerminalTranscript(sessionId: String, transcript: String): Boolean {
+        val session = controller.state.value.sessions.firstOrNull { it.id == sessionId } ?: return false
+        if (session.project != openProject.value || transcript.isBlank()) return false
+        val current = mutableTerminalDrafts.value[sessionId].orEmpty()
+        val separator = if (current.isEmpty() || current.last().isWhitespace()) "" else " "
+        setTerminalDraft(sessionId, current + separator + transcript.trim())
+        return true
+    }
+
+    /** Submits only for the still-active originating session (caller includes trailing CR). */
+    fun submitLine(sessionId: String, text: String) {
+        val state = controller.state.value
+        if (openProject.value == null || state.activeSessionId != sessionId) return
+        val session = state.sessions.firstOrNull { it.id == sessionId } ?: return
+        if (session.project != openProject.value) return
         controller.writeToTerminal(text)
+        mutableTerminalDrafts.value = mutableTerminalDrafts.value - sessionId
     }
 
     /** Sends one key press from the key row (arrows, Esc, Ctrl+C, Shift+Tab, …). */
