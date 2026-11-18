@@ -126,6 +126,10 @@ actual fun SpeechInputControl(
                 if (state == SpeechInputState.Recording) {
                     stopRecording()
                 } else {
+                    // Freeze both destination and callback at the moment dictation starts.
+                    // Recomposition or terminal-tab changes must not retarget an in-flight result.
+                    val operationTarget = target
+                    val operationOnTranscript = onTranscript
                     val operationStopRequest = AtomicBoolean(false)
                     val speechJob = scope.launch(start = CoroutineStart.LAZY) {
                         var capturedSamples: FloatArray? = null
@@ -145,7 +149,7 @@ actual fun SpeechInputControl(
                             // same shared staging directory on first use.
                             val acquiredSession = voiceCoordinator.begin(
                                 mode = VoiceInteractionMode.DICTATION,
-                                target = target,
+                                target = operationTarget,
                             )
                             if (acquiredSession == null) {
                                 state = SpeechInputState.Error
@@ -184,7 +188,7 @@ actual fun SpeechInputControl(
                                 state = SpeechInputState.Ready
                                 status = noSpeechText
                             } else {
-                                onTranscript(transcript)
+                                operationOnTranscript(transcript)
                                 state = SpeechInputState.Ready
                                 status = addedText
                             }
