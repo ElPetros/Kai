@@ -99,6 +99,7 @@ fun QuestionInput(
     cancel: () -> Unit = {},
     availableServices: ImmutableList<ServiceEntry> = persistentListOf(),
     onSelectService: (String) -> Unit = {},
+    showServiceSelector: Boolean = true,
     installedSkills: ImmutableList<SkillManifest> = persistentListOf(),
     modifier: Modifier = Modifier,
 ) {
@@ -256,7 +257,7 @@ fun QuestionInput(
                     modifier = Modifier.padding(end = 7.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    if (availableServices.size > 1) {
+                    if (showServiceSelector && availableServices.size > 1) {
                         ServiceSelector(
                             services = availableServices,
                             onSelectService = onSelectService,
