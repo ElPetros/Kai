@@ -5,7 +5,12 @@ on:
     branches:
       - feature/offline-speech-input
     paths:
-      - "composeApp/src/androidDeviceTest/**"
+      - "androidApp/**"
+      - "composeApp/**"
+      - "gradle/**"
+      - "settings.gradle.kts"
+      - "build.gradle.kts"
+      - ".github/workflows/android-speech-build.yml"
 
 permissions:
   contents: read
