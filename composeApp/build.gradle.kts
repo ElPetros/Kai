@@ -47,7 +47,7 @@ kotlin {
         }
         withHostTest {}
         withDeviceTestBuilder {
-            // Share commonTest benchmark models and validators with instrumentation tests.
+            // Share commonTest benchmark models and validators with instrumentation tests; compile this source set in CI.
             sourceSetTreeName = "test"
         }.configure {
             instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
