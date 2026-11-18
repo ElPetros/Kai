@@ -6,8 +6,11 @@ import com.inspiredandroid.kai.KaiBuildController
 import com.inspiredandroid.kai.NoOpFileBrowserSource
 import com.inspiredandroid.kai.build.BuildEnvironmentState
 import com.inspiredandroid.kai.build.KaiBuildState
+import com.inspiredandroid.kai.build.BuildTerminalSession
 import com.inspiredandroid.kai.testutil.FakeDataRepository
 import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,6 +48,7 @@ class KaiBuildViewModelTest {
 
         /** Old-to-new pairs passed to [renameProject], oldest first. */
         val renamed = mutableListOf<Pair<String, String>>()
+        val written = mutableListOf<String>()
 
         override fun install(agentIds: Set<String>) {}
         override fun cancel() {}
@@ -64,11 +68,14 @@ class KaiBuildViewModelTest {
             startedWith += agentId
         }
 
-        override fun selectSession(id: String) {}
-        override fun closeSession(id: String) {}
+        override fun selectSession(id: String) { state.value = state.value.copy(activeSessionId = id) }
+        override fun closeSession(id: String) {
+            val remaining = state.value.sessions.filterNot { it.id == id }.toImmutableList()
+            state.value = state.value.copy(sessions = remaining, activeSessionId = remaining.firstOrNull()?.id)
+        }
         override fun resumeProject(project: String): Boolean = false
         override fun leaveProject(project: String) {}
-        override fun writeToTerminal(text: String) {}
+        override fun writeToTerminal(text: String) { written += text }
         override fun resizeTerminal(columns: Int, rows: Int) {}
     }
 
@@ -136,6 +143,62 @@ class KaiBuildViewModelTest {
 
         assertEquals(listOf("old-demo"), fakeController.deleted)
         assertEquals(listOf("demo" to "demo-2"), fakeController.renamed)
+    }
+
+    @Test
+    fun `terminal drafts remain independent when sessions switch`() = runTest {
+        val first = BuildTerminalSession(id = "terminal-1", project = "demo", agentId = null, number = 1)
+        val second = BuildTerminalSession(id = "terminal-2", project = "demo", agentId = null, number = 2)
+        fakeController.state.value = fakeController.state.value.copy(sessions = persistentListOf(first, second), activeSessionId = first.id)
+        val viewModel = KaiBuildViewModel(fakeController, fakeRepository)
+        viewModel.openProject("demo")
+        viewModel.setTerminalDraft(first.id, "first command")
+        viewModel.selectSession(second.id)
+        viewModel.setTerminalDraft(second.id, "second command")
+        assertEquals("first command", viewModel.terminalDrafts.value[first.id])
+        assertEquals("second command", viewModel.terminalDrafts.value[second.id])
+    }
+
+    @Test
+    fun `dictation is appended only to its originating session draft`() = runTest {
+        val first = BuildTerminalSession(id = "terminal-1", project = "demo", agentId = null, number = 1)
+        val second = BuildTerminalSession(id = "terminal-2", project = "demo", agentId = null, number = 2)
+        fakeController.state.value = fakeController.state.value.copy(sessions = persistentListOf(first, second), activeSessionId = second.id)
+        val viewModel = KaiBuildViewModel(fakeController, fakeRepository)
+        viewModel.openProject("demo")
+        viewModel.setTerminalDraft(first.id, "please")
+        viewModel.selectSession(second.id)
+        assertEquals(true, viewModel.insertTerminalTranscript(first.id, "review this"))
+        assertEquals("please review this", viewModel.terminalDrafts.value[first.id])
+        assertNull(viewModel.terminalDrafts.value[second.id])
+    }
+
+    @Test
+    fun `late dictation is rejected after its terminal session closes`() = runTest {
+        val first = BuildTerminalSession(id = "terminal-1", project = "demo", agentId = null, number = 1)
+        fakeController.state.value = fakeController.state.value.copy(sessions = persistentListOf(first), activeSessionId = first.id)
+        val viewModel = KaiBuildViewModel(fakeController, fakeRepository)
+        viewModel.openProject("demo")
+        viewModel.closeSession(first.id)
+        assertEquals(false, viewModel.insertTerminalTranscript(first.id, "must not appear"))
+        assertNull(viewModel.terminalDrafts.value[first.id])
+    }
+
+    @Test
+    fun `terminal line submission requires the originating session to remain active`() = runTest {
+        val first = BuildTerminalSession(id = "terminal-1", project = "demo", agentId = null, number = 1)
+        val second = BuildTerminalSession(id = "terminal-2", project = "demo", agentId = null, number = 2)
+        fakeController.state.value = fakeController.state.value.copy(sessions = persistentListOf(first, second), activeSessionId = second.id)
+        val viewModel = KaiBuildViewModel(fakeController, fakeRepository)
+        viewModel.openProject("demo")
+        viewModel.setTerminalDraft(first.id, "echo first")
+        viewModel.submitLine(first.id, "echo first\r")
+        assertEquals(emptyList(), fakeController.written)
+        assertEquals("echo first", viewModel.terminalDrafts.value[first.id])
+        viewModel.selectSession(first.id)
+        viewModel.submitLine(first.id, "echo first\r")
+        assertEquals(listOf("echo first\r"), fakeController.written)
+        assertNull(viewModel.terminalDrafts.value[first.id])
     }
 
     @Test
