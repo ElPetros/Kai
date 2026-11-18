@@ -23,4 +23,17 @@ class SpeechTextInsertionTest {
     fun ignoresBlankRecognition() {
         assertEquals("Keep this", appendSpeechTranscript("Keep this", "   "))
     }
+    
+    @Test
+    fun automaticSendingRequiresExplicitOptIn() {
+        assertFalse(shouldAutoSendSpeechTranscript(false, "", false))
+        assertTrue(shouldAutoSendSpeechTranscript(true, "", false))
+    }
+
+    @Test
+    fun automaticSendingFallsBackToReviewWhenDraftExists() {
+        assertFalse(shouldAutoSendSpeechTranscript(true, "Existing draft", false))
+        assertFalse(shouldAutoSendSpeechTranscript(true, "   ", true))
+    }
 }
+
