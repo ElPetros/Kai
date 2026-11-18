@@ -157,8 +157,10 @@ internal object SpeechBenchmarkAndroidRunner {
     }
 
     private fun resolveCorpusFile(root: File, relativePath: String): File {
-        require(relativePath.isNotBlank() && !relativePath.startsWith("/") &&
-            !relativePath.startsWith("\\") && !relativePath.contains('\\')) {
+        require(
+            relativePath.isNotBlank() && !relativePath.startsWith("/") &&
+                !relativePath.startsWith("\\") && !relativePath.contains('\\'),
+        ) {
             "Audio path must be a safe relative path."
         }
         val candidate = File(root, relativePath).canonicalFile
@@ -209,6 +211,7 @@ internal object SpeechBenchmarkAndroidRunner {
                         require(format == 1) { "Only uncompressed PCM WAV is supported." }
                         formatFound = true
                     }
+
                     "data" -> {
                         require(dataOffset == -1L) { "Multiple WAV data chunks are not supported." }
                         dataOffset = chunkStart
@@ -219,8 +222,10 @@ internal object SpeechBenchmarkAndroidRunner {
             }
 
             require(formatFound && dataOffset >= 0L) { "WAV is missing fmt or data chunk." }
-            require(channels == 1 && sampleRate == SAMPLE_RATE.toLong() &&
-                bitsPerSample == 16 && blockAlign == 2) {
+            require(
+                channels == 1 && sampleRate == SAMPLE_RATE.toLong() &&
+                    bitsPerSample == 16 && blockAlign == 2,
+            ) {
                 "WAV must be mono, 16 kHz, signed 16-bit PCM."
             }
             require(dataSize > 0L && dataSize % 2L == 0L) {
