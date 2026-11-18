@@ -28,8 +28,8 @@ class SpeechTextInsertionTest {
 
     @Test
     fun automaticSendingRequiresExplicitOptIn() {
-        assertFalse(shouldAutoSendSpeechTranscript(false, "", false))
-        assertTrue(shouldAutoSendSpeechTranscript(true, "", false))
+        assertFalse(shouldAutoSendSpeechTranscript(false, "", false, false))
+        assertTrue(shouldAutoSendSpeechTranscript(true, "", false, false))
     }
 
     @Test
