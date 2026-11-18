@@ -14,7 +14,7 @@ Finish the existing Android speech-input path in Kai 3.3.0. Do not replace the a
 4. Kai transcribes locally with the existing Moonshine tiny English model through sherpa-onnx. The first installation may download the model; recognition itself is offline.
 5. In review mode, the recognized transcript is inserted into the existing composer at the current selection. The user can edit it and press Send.
 6. An optional persistent setting, **Automatically send speech transcripts**, allows the recognized transcript to be sent to Kai without a second tap. It is OFF by default.
-7. Automatic sending is deliberately limited to a clean composer: if the composer already contains text or has attached files, the transcript is inserted for review instead. Empty transcripts and failed recognition are never sent.
+7. Automatic sending is deliberately limited to a clean composer: if the composer already contains text, has attached files, or Kai is already responding, the transcript is inserted for review instead. Empty transcripts and failed recognition are never sent.
 8. Only one voice session may own the microphone. Leaving the foreground or disposing the control stops capture and cancels the operation. Captured PCM is cleared after use.
 
 ## UI constraints
