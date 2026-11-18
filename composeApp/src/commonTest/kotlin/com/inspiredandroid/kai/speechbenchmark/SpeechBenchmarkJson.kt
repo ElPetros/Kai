@@ -19,8 +19,6 @@ internal object SpeechBenchmarkJson {
     private val json = Json {
         prettyPrint = true
         encodeDefaults = true
-        explicitNulls = true
-        ignoreUnknownKeys = false
     }
 
     fun encodeManifest(manifest: SpeechBenchmarkManifest): String {
