@@ -47,8 +47,10 @@ kotlin {
         }
         withHostTest {}
         withDeviceTestBuilder {
-            // Share commonTest benchmark models and validators with instrumentation tests; compile this source set in CI against the published Android 37.0 SDK platform.
-            sourceSetTreeName = "test"
+            // Keep unrelated commonTest suites out of the Android test APK. Some
+            // existing Kotlin backtick test names contain spaces, which DEX cannot
+            // encode for the app's minimum Android API level.
+            sourceSetTreeName = null
         }.configure {
             instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
@@ -150,6 +152,18 @@ kotlin {
             }
         }
         getByName("androidDeviceTest") {
+            // Reuse only the benchmark's non-test core files. Do not pull the
+            // complete commonTest tree into the installable instrumentation APK.
+            kotlin.srcDir(
+                fileTree("src/commonTest/kotlin/com/inspiredandroid/kai/speechbenchmark") {
+                    include(
+                        "SpeechBenchmarkJson.kt",
+                        "SpeechBenchmarkManifest.kt",
+                        "SpeechBenchmarkResults.kt",
+                        "WordErrorRate.kt",
+                    )
+                },
+            )
             dependencies {
                 implementation(libs.androidx.test.runner)
                 implementation(libs.androidx.test.core)
