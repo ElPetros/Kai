@@ -209,10 +209,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
-import com.inspiredandroid.kai.Platform
-import com.inspiredandroid.kai.currentPlatform
-import com.inspiredandroid.kai.tools.SpeechInputControl
-import com.inspiredandroid.kai.tools.VoiceInputTarget
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
