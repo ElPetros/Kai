@@ -158,8 +158,15 @@ actual fun SpeechInputControl(
                         if (transcript.isBlank()) {
                             state = SpeechInputState.Ready
                         } else {
-                            operationOnTranscript(transcript)
-                            state = SpeechInputState.Ready
+                            // Publish composer state only from the UI dispatcher. The recognizer
+                            // runs on Dispatchers.Default; keeping this boundary explicit avoids
+                            // a transcript update being deferred until an unrelated configuration
+                            // change (for example, rotating the device) triggers recomposition.
+                            withContext(Dispatchers.Main.immediate) {
+                                Log.i("SpeechInputControl", "Delivering offline transcript to composer")
+                                operationOnTranscript(transcript)
+                                state = SpeechInputState.Ready
+                            }
                         }
                     } catch (cancelled: CancellationException) {
                         throw cancelled
