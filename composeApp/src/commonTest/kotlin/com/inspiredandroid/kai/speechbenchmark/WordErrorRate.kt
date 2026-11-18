@@ -50,10 +50,12 @@ internal object WordErrorRate {
                             distances[i][j] = substitution
                             operations[i][j] = SUBSTITUTE
                         }
+
                         deletion -> {
                             distances[i][j] = deletion
                             operations[i][j] = DELETE
                         }
+
                         else -> {
                             distances[i][j] = insertion
                             operations[i][j] = INSERT
