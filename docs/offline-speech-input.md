@@ -7,10 +7,12 @@ The first speech-input implementation is Android-only and English-only. It is a 
 1. The user taps the microphone.
 2. On first use, Kai requests microphone permission and downloads the speech model.
 3. The user taps the microphone again to start recording, then taps Stop.
-4. Kai transcribes locally and inserts the result at the composer's current selection.
+4. Kai transcribes locally and inserts the result at the composer's current selection by default.
 5. The user reviews and edits the text before using Kai's existing Send control.
 
-Speech input does not submit messages, run in the background, or keep the microphone open between recordings. Audio is held in memory for a maximum of 60 seconds and is not written to persistent storage or uploaded.
+An optional Android Settings toggle, **Automatically send speech transcripts**, is OFF by default. When explicitly enabled, Kai sends a non-empty transcript automatically only if the composer is empty, no files are attached, and Kai is not already responding. If a draft, attachment, or active response exists, the transcript is inserted for review instead. Failed or empty recognition is never sent.
+
+Speech input remains foreground-only and does not keep the microphone open between recordings. Audio is held in memory for a maximum of 60 seconds and is not written to persistent storage or uploaded.
 
 The first-use model download requires an internet connection. After installation, recognition itself is offline.
 

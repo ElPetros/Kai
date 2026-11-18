@@ -16,10 +16,10 @@ permissions:
   contents: read
 
 jobs:
-  build-speechtest-and-device-test:
-    name: Build Speech Test app and benchmark test APKs
+  build-kai-android-and-tests:
+    name: Build Kai Android variants and run shared tests
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 50
     steps:
       - name: Check out source
         uses: actions/checkout@v4
@@ -51,15 +51,15 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
-      - name: Assemble isolated Speech Test app and Android device-test APK
-        run: ./gradlew :androidApp:assembleFossDebug :composeApp:assembleAndroidDeviceTest --no-daemon --stacktrace
+      - name: Assemble installable test APK, actual Kai release variant, and shared tests
+        run: ./gradlew :androidApp:assembleFossDebug :androidApp:assembleFossRelease :composeApp:desktopTest --no-daemon --stacktrace
 
-      - name: Upload installable APKs
+      - name: Upload Android validation APKs
         uses: actions/upload-artifact@v4
         with:
-          name: kai-speechtest-and-benchmark-apks
+          name: kai-android-validation-apks
           path: |
             androidApp/build/outputs/apk/foss/debug/*.apk
-            composeApp/build/outputs/**/*.apk
+            androidApp/build/outputs/apk/foss/release/*.apk
           if-no-files-found: error
           retention-days: 7

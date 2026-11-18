@@ -2,6 +2,8 @@ package com.inspiredandroid.kai.tools
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class SpeechTextInsertionTest {
     @Test
@@ -23,4 +25,18 @@ class SpeechTextInsertionTest {
     fun ignoresBlankRecognition() {
         assertEquals("Keep this", appendSpeechTranscript("Keep this", "   "))
     }
+
+    @Test
+    fun automaticSendingRequiresExplicitOptIn() {
+        assertFalse(shouldAutoSendSpeechTranscript(false, "", false, false))
+        assertTrue(shouldAutoSendSpeechTranscript(true, "", false, false))
+    }
+
+    @Test
+    fun automaticSendingFallsBackToReviewWhenDraftExists() {
+        assertFalse(shouldAutoSendSpeechTranscript(true, "Existing draft", false, false))
+        assertFalse(shouldAutoSendSpeechTranscript(true, "   ", true, false))
+        assertFalse(shouldAutoSendSpeechTranscript(true, "", false, true))
+    }
 }
+
