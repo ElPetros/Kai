@@ -961,6 +961,7 @@ private fun ChatModeScreen(
                     availableServices = uiState.availableServices,
                     onSelectService = uiState.actions.selectService,
                     showServiceSelector = false,
+                    autoSendSpeech = uiState.isSpeechAutoSendEnabled,
                     installedSkills = uiState.installedSkills,
                 )
             }
