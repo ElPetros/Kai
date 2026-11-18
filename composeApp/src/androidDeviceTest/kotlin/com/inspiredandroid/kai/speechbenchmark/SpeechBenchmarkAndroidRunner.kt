@@ -55,7 +55,7 @@ internal object SpeechBenchmarkAndroidRunner {
             "Moonshine Tiny is not installed. Install it through Kai before running the benchmark."
         }
 
-        val modelBytes = listOf(encoder, decoder, tokens).sumOf { it.length() }
+        val modelBytes = modelDirectory.walkTopDown().filter { it.isFile }.sumOf { it.length() }
         val memoryBefore = currentPssBytes()
         val modelConfig = OfflineModelConfig(
             moonshine = OfflineMoonshineModelConfig(
@@ -89,11 +89,12 @@ internal object SpeechBenchmarkAndroidRunner {
                     require(wav.durationMillis == clip.durationMillis) {
                         "WAV duration does not match the manifest."
                     }
-                    samples = wav.samples
+                    val audioSamples = wav.samples
+                    samples = audioSamples
                     val stream = recognizer.createStream()
                     val inferenceStart = SystemClock.elapsedRealtimeNanos()
                     val recognizedText = try {
-                        stream.acceptWaveform(samples, sampleRate = SAMPLE_RATE)
+                        stream.acceptWaveform(audioSamples, sampleRate = SAMPLE_RATE)
                         recognizer.decode(stream)
                         recognizer.getResult(stream).text.trim()
                     } finally {
@@ -137,7 +138,8 @@ internal object SpeechBenchmarkAndroidRunner {
             modelLoadMillis = modelLoadMillis,
             installedModelBytes = modelBytes,
             memoryBeforeBytes = memoryBefore,
-            peakMemoryBytes = currentPssBytes(),
+            // A true peak sampler is not installed yet; do not mislabel an end-of-run sample as peak PSS.
+            peakMemoryBytes = null,
             clipResults = clipResults,
         )
         val report = SpeechBenchmarkReport(
