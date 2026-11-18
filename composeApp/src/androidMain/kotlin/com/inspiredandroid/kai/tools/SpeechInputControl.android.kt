@@ -41,6 +41,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.stringResource
@@ -195,6 +196,10 @@ actual fun SpeechInputControl(
                         } catch (cancelled: CancellationException) {
                             throw cancelled
                         } catch (_: Exception) {
+                            // A blocking AudioRecord read can fail while ON_STOP is also
+                            // cancelling this job. Do not let that late failure overwrite
+                            // the Idle state that the lifecycle observer just established.
+                            currentCoroutineContext().ensureActive()
                             state = SpeechInputState.Error
                             status = errorText
                         } finally {
