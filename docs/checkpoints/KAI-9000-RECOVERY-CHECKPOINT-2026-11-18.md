@@ -170,3 +170,5 @@ The user can start a future session with:
 - Added AndroidX Test runner/core/JUnit stable dependencies and a minimal instrumentation smoke test under `composeApp/src/androidDeviceTest`.
 - Updated the benchmark CI workflow to compile the Android device-test Kotlin source set in addition to formatting and desktop benchmark tests. CI installs Android SDK platform 37 for this compile.
 - This checkpoint proves configuration and compilation only after CI succeeds; the full local corpus/model runner and Galaxy A36 execution remain pending. No production speech code or model assets were changed.
+
+- CI run #43 (`44270376677`) failed during Android SDK setup before Gradle execution because the setup action received the SDK package list as one semicolon-delimited token. Corrected the workflow to pass `platform-tools` and `platforms;android-37` as separate lines; rerun required before treating device-test compilation as verified.
