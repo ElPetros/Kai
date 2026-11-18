@@ -32,6 +32,8 @@ import kai.composeapp.generated.resources.settings_daemon_mode
 import kai.composeapp.generated.resources.settings_daemon_mode_description
 import kai.composeapp.generated.resources.settings_dynamic_ui
 import kai.composeapp.generated.resources.settings_dynamic_ui_description
+import kai.composeapp.generated.resources.settings_speech_auto_send
+import kai.composeapp.generated.resources.settings_speech_auto_send_description
 import kai.composeapp.generated.resources.settings_theme
 import kai.composeapp.generated.resources.settings_theme_dark
 import kai.composeapp.generated.resources.settings_theme_description
