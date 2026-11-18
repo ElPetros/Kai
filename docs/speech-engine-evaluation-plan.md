@@ -16,13 +16,32 @@ Keep the current quantized Moonshine v2 Tiny English integration as the function
 - App behavior: bounded 60-second capture, Stop-to-transcribe, transcript inserted as an editable draft; no automatic submission.
 - Real-device status: two successful user-reported exact transcriptions on Samsung Galaxy A36 (SM-S366V). This is functional smoke-test evidence, not a comparative accuracy benchmark.
 
-## Candidate
+## Candidate A — Moonshine v2 Base English
+
+- Model: quantized Moonshine v2 Base English, archive `sherpa-onnx-moonshine-base-en-quantized-2026-02-27.tar.bz2`, using the same sherpa-onnx Moonshine runtime family as the current Tiny baseline.
+- The official Moonshine model catalogue lists English Base as MIT-licensed and reports a quantized package around 135 MB, compared with the current Tiny package around 43 MiB. The larger decoder/model footprint is a real device-cost risk, not an automatic quality win.
+- The official catalogue's published English non-streaming table lists Base at 10.07% and Tiny at 12.66% WER on its eight-dataset Open ASR average (58M vs 26M parameters). These are upstream reference results, not measurements of Kai's exact quantized packages on the Galaxy A36; use them only as motivation to run the controlled device comparison.
+- The sherpa-onnx v2.0.1 Kotlin API exposes the Moonshine v2 `encoder` and `mergedDecoder` fields, matching the model's two-file runtime layout.
+- This is a same-family size/accuracy challenger, not an independent architecture comparison. Verify exact archive size, SHA-256, license notice, and load/runtime behavior on the Galaxy A36 before benchmarking.
+- Do not change the installed Tiny baseline or the user-facing default while evaluating Base.
+
+## Candidate B — Zipformer GigaSpeech (license hold)
 
 - Model family: sherpa-onnx Zipformer, GigaSpeech-trained English offline transducer.
 - Upstream model identifier: `sherpa-onnx-zipformer-gigaspeech-2023-12-12`.
 - Upstream catalogue: https://k2-fsa.github.io/sherpa/onnx/pretrained_models/offline-transducer/zipformer-transducer-models.html
-- The upstream package listing shows an int8 encoder around 68 MB and a substantially larger unquantized encoder. Do not infer total installed footprint or runtime memory from the encoder file alone.
-- Before integration, verify model files, archive size, checksums, license, runtime API compatibility with sherpa-onnx 2.0.1, and whether an ORT-compatible variant is available for Android.
+- The official model page lists both fp32 and int8 files. The documented int8 configuration uses the int8 encoder and int8 joiner with the fp32 decoder; the int8 encoder is listed at about 68 MB, the fp32 encoder at about 249 MB, and the package also includes both decoder/joiner variants and tokens. The archive size, extracted size, and SHA-256 have not yet been independently recorded.
+- **License is a blocker, not cleared.** The GigaSpeech repository's Apache-2.0 license file and the dataset's access terms are not interchangeable: the dataset page states non-commercial research/education terms for audio, and the maintainers' licensing discussion notes that Apache-2.0 covers repository scripts rather than automatically granting rights to the audio. The exact license/redistribution rights for this converted model checkpoint are not explicitly established by the sherpa model page. Do not bundle or distribute these weights with Kai unless the model-weight rights are clarified.
+- The sherpa-onnx v2.0.1 Kotlin API source defines `OfflineTransducerModelConfig(encoder, decoder, joiner)` and `OfflineModelConfig.transducer`, so the required transducer configuration shape exists in the pinned runtime. This confirms API shape only; it does not prove that the candidate model loads successfully on Android or the Galaxy A36.
+- Before integration or device benchmarking, verify the model files, exact archive size/checksum, model-weight license and redistribution rights, and runtime compatibility. Do not infer total installed footprint or runtime memory from the encoder file alone.
+
+## Alternative candidate to investigate
+
+The sherpa-onnx catalogue also lists `csukuangfj/sherpa-onnx-zipformer-small-en-2023-06-26`, converted from a LibriSpeech-trained Zipformer Small model. The catalogue lists an int8 encoder around 25 MB, an int8 decoder around 1.2 MB, and an int8 joiner around 253 KB. This may be a more practical A36 challenger than the GigaSpeech model on footprint, but its model-weight license and exact package checksum still need verification. If it is evaluated, do not use LibriSpeech test-clean as the primary deciding corpus because this candidate was trained on LibriSpeech; keep Earnings-22 and TED-LIUM 3 as independent primary comparisons.
+
+## Candidate decision gate
+
+The GigaSpeech candidate remains a research lead only until the checkpoint's weight-license and redistribution rights are clear. The LibriSpeech Zipformer alternative is also not cleared until its actual weight license is verified. Moonshine v2 Base English is the current clearly documented MIT-licensed challenger to investigate first, subject to exact package provenance and on-device resource checks. If its resource cost is unacceptable, keep Tiny as the baseline and continue looking for another clearly licensed challenger.
 
 ## Test corpus
 

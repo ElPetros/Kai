@@ -46,6 +46,14 @@ kotlin {
             enable = true
         }
         withHostTest {}
+        withDeviceTestBuilder {
+            // Keep unrelated commonTest suites out of the Android test APK. Some
+            // existing Kotlin backtick test names contain spaces, which DEX cannot
+            // encode for the app's minimum Android API level.
+            sourceSetTreeName = null
+        }.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
     }
 
     listOf(
@@ -141,6 +149,13 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.test)
                 implementation(libs.turbine)
                 implementation(libs.multiplatform.settings.test)
+            }
+        }
+        getByName("androidDeviceTest") {
+            dependencies {
+                implementation(libs.androidx.test.runner)
+                implementation(libs.androidx.test.core)
+                implementation(libs.androidx.test.ext.junit)
             }
         }
         androidMain {

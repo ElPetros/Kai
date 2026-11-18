@@ -6,10 +6,13 @@
 
 - Project: **Kai 9000 Speech Edition**.
 - GitHub repository: [ElPetros/Kai](https://github.com/ElPetros/Kai), a fork of SimonSchubert/Kai.
-- Active development branch: `feature/offline-speech-input`.
-- Verified branch/PR head at the time this checkpoint was prepared: `e00d1cbba0ec59fc4b30d1902f7a19b07ce4512c`.
+- Primary speech implementation branch: `feature/offline-speech-input`.
+- Isolated benchmark development branch: `feature/speech-benchmark-harness` (based on the verified recovery checkpoint).
+- Benchmark branch head immediately before this checkpoint update: `1fa9dba4e8b0f6f610507dcb9006231ebb50817a`.
+- Original speech implementation head before checkpoint-only updates: `e00d1cbba0ec59fc4b30d1902f7a19b07ce4512c`.
 - Verified commit: [Add controlled offline speech model evaluation plan](https://github.com/ElPetros/Kai/commit/e00d1cbba0ec59fc4b30d1902f7a19b07ce4512c).
-- Open draft PR: [#1 — Add Android offline speech input](https://github.com/ElPetros/Kai/pull/1). It was verified open, draft, unmerged, with head `e00d1cbba0ec59fc4b30d1902f7a19b07ce4512c` and base `main`.
+- Open draft PR [#1 — Add Android offline speech input](https://github.com/ElPetros/Kai/pull/1) remains the original speech feature PR, targeting `main`; do not merge it as part of benchmark work.
+- Open draft PR [#2 — Add isolated offline speech benchmark scoring core](https://github.com/ElPetros/Kai/pull/2) targets `feature/offline-speech-input`, keeping benchmark work separate from PR #1.
 - Other known branches: `checkpoint/kai-speech-edition-2026-11-18` and `feature/offline-speech-input-privacy-hardening`. Do not switch or merge branches casually; inspect first.
 - **Kai and Chat Sentinel are separate projects.** Do not run Chat Sentinel commands, modify its repository, or mix its HIB work into this Kai task.
 
@@ -61,9 +64,63 @@
 - A live Codespace name/ID and its working-tree state were **not** verified. Do not assume uncommitted Codespace files are safely stored in GitHub.
 - Do not initialize, overwrite, clone over, delete, or repurpose `/root/projects/test-repo`. First identify the actual Kai checkout and its remote/status.
 
-## 5. Exact next development point
+## 5. Earlier Kai product and architecture decisions to preserve
 
-The next planned engineering task is to prepare a **separate, reproducible Android benchmark harness/variant** that:
+These are carried forward from earlier Kai discussions. They are requirements or design directions, not all completed features.
+
+### Speech and voice interaction
+
+- The composer microphone belongs inside the message composer, on the right, near but clearly separate from the lightning/action control. Do not restore a separate label above the composer such as “Voice input · English, offline.”
+- AI-provider connectivity and speech-engine availability are separate states. A local speech engine can be offline-capable while the chat AI provider is online, unavailable, or rate-limited; do not collapse these into one status indicator. Earlier UI direction was clear red/green provider connectivity, with speech-engine status represented separately where useful.
+- The current implemented speech workflow is bounded, foreground-only dictation: user starts/stops capture, reviews editable text, and explicitly submits it. Speech recognition must not auto-send a chat message, activate an action button, press Enter, or execute a terminal command.
+- Dictation destinations are explicit and session-bound. Terminal command text remains a draft pending a separate user action.
+- The shared voice-session model includes DICTATION, SPOKEN_REQUEST, and LIVE_CONVERSATION modes, but the full end-to-end behavior of all three modes is not established as complete merely because the coordinator enum exists.
+- Local/offline recognition after first-use model download, app-private model storage, no raw-audio upload, and temporary audio cleanup are core privacy/sovereignty boundaries.
+
+### Terminal workgroups — planned, not yet implemented
+
+The intended direction is one Kai coordinating multiple terminal workgroups, rather than independent terminals acting without shared coordination. Earlier design discussions included:
+- Stable session IDs and clear workgroup ownership.
+- A shared objective and shared task context, with source attribution for contributed output.
+- Ordered tasks and explicit dependencies.
+- Resource locking / conflict prevention when workgroups touch shared files or resources.
+- Verification of work before results are accepted or handed off.
+
+The current code does not yet implement full workgroup membership, history, scheduling, dependency execution, or resource locking. Treat this as an architecture requirement and future design task, not a shipped capability.
+
+### Project values, portability, and preservation
+
+- The user strongly values Kai as open-source, free, sovereign, and portable. Prefer local-first behavior and user-controlled data; explain any unavoidable external dependency plainly.
+- Keep the Kai source repository, Kai Build/Debian filesystem, local model files, exports/settings, and Chat Sentinel as distinct preservation surfaces. A GitHub repository does not automatically back up the Debian filesystem, installed packages, local models, or uncommitted workspace files.
+- A previous discussion described Kai export coverage as conversations, memories, tools/settings, heartbeat, tasks, and provider configurations/API keys, while excluding Debian filesystem/packages/Build files/local models. Treat that as the previously discussed export scope, not as a newly verified export guarantee; inspect the actual exporter before relying on it.
+- Any export or settings JSON containing provider credentials/API keys is private. Never commit secrets or private exports into the public GitHub repository. Use placeholders/redaction in documentation and keep credentials in their intended secure local settings store.
+- The user's Kai Build environment is Debian 12 Bookworm ARM64 on the Samsung Galaxy A36. The separate Chat Sentinel checkout and all HIB environments remain out of scope for Kai work.
+
+## 6. November 18 benchmark work — current progress
+
+Work has started on the separate branch `feature/speech-benchmark-harness` and draft PR #2. This branch is based on the recovery checkpoint commit and does not modify the user-facing speech implementation.
+
+Committed foundations:
+- `composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/speechbenchmark/WordErrorRate.kt`: deterministic Levenshtein WER scorer with fixed normalization policy v1 and stable edit-operation tie-break.
+- `WordErrorRateTest.kt`: exact match, substitution, deletion, insertion, punctuation/case/apostrophe handling, empty-reference behavior, and number-token policy tests.
+- `SpeechBenchmarkManifest.kt` and `SpeechBenchmarkManifestValidatorTest.kt`: versioned manifest data model and validation for unique IDs, safe relative paths, SHA-256 syntax, mono 16 kHz prepared audio, positive durations, and non-empty references.
+- `SpeechBenchmarkResults.kt` and `SpeechBenchmarkAggregatorTest.kt`: per-clip success/failure model and aggregate accuracy/latency/failure metrics. Corpus WER is weighted by reference word count; failed clips remain visible in failure rate but are excluded from WER and latency.
+- `SpeechBenchmarkJson.kt` and `SpeechBenchmarkJsonTest.kt`: strict local JSON encode/decode for manifests and reports. Manifest validation runs on read/write; report aggregates are recomputed and checked against per-clip results.
+- `docs/speech-benchmark-harness.md`: design, privacy boundaries, candidate licensing status, current status, and next steps.
+- `docs/speech-engine-evaluation-plan.md`: candidate review now puts MIT-licensed Moonshine v2 Base English first for investigation; GigaSpeech Zipformer is held pending model-weight redistribution rights; LibriSpeech Zipformer weight license remains unverified.
+- `.github/workflows/speech-benchmark-core.yml`: PR-scoped workflow runs `spotlessCheck` and `:composeApp:desktopTest`, with concurrency cancellation to avoid duplicate/superseded checks.
+
+**Verification status:** CI exposed two successive Spotless formatting differences in `WordErrorRate.kt`; both have been corrected in commit `e102ad30b6461c76d2f7888856fd442e70a3d30b`. Earlier CI attempts stopped at `spotlessKotlinCheck`, so `:composeApp:desktopTest` has not yet been confirmed. Several newer PR checks were canceled or left pending while the workflow concurrency group was refreshed; no green CI result has been confirmed. Inspect the latest workflow run live before claiming formatting or tests pass. No Android device runner or actual device benchmark has been implemented or run. JSON codec logic is implemented and has unit tests in source, but test execution is still pending.
+
+
+
+### Android device-test path confirmed (not yet enabled)
+
+The current module uses the Android KMP library plugin and currently opts in only to `withHostTest {}`. Official AGP documentation confirms that `withDeviceTest` creates the `androidDeviceTest` source set. To reuse shared benchmark code in that device-test compilation, the documented builder form can set `sourceSetTreeName = "test"`, with `AndroidJUnitRunner` configured. This has been researched but **not yet added to the build**; instrumentation dependencies and the actual A36 task still need validation. Reference: https://developer.android.com/kotlin/multiplatform/plugin
+
+## 7. Exact next development point
+
+The next planned engineering task is to finish the testable benchmark core, then prepare a **separate, reproducible Android benchmark runner/variant** that:
 
 1. Loads only one selected ASR model at a time.
 2. Uses a fixed clip manifest and reference transcripts.
@@ -78,7 +135,7 @@ Other discrete outstanding work:
 - Identify the actual Kai local checkout or Codespace only if local build/device work requires it.
 - Do not change the default speech model, merge PR #1, release, deploy, or alter unrelated settings without explicit approval.
 
-## 6. Resume protocol — use this instead of starting over
+## 8. Resume protocol — use this instead of starting over
 
 When the user returns:
 
@@ -92,8 +149,40 @@ When the user returns:
 
 **Safety rule:** A checkpoint is a verified map, not permission to perform destructive actions. No deletion, overwrite, branch reset, force push, merge, release, deployment, or cross-project change without explicit user approval.
 
-## 7. Quick resume phrase
+## 9. Quick resume phrase
 
 The user can start a future session with:
 
-> Resume Kai 9000 from the verified November 18 recovery checkpoint in ElPetros/Kai. Connect to GitHub, verify the active branch and PR head against the checkpoint, then continue from the first unfinished task. Do not restart completed work or touch Chat Sentinel.
+> Resume Kai 9000 from the verified November 18 recovery checkpoint in ElPetros/Kai. Connect to GitHub, verify the speech branch, benchmark branch, and PR #1/#2 heads, inspect CI, then continue from the first unfinished benchmark task. Do not restart completed work or touch Chat Sentinel.
+
+
+### CI notification incident and corrective action — 2026-11-18
+
+- Review of the recent commit history confirms the formatting repair sequence: `7338cfeed77381eaf57f3c75af0ef0a21350f14a` applied the Spotless branch-spacing rule to the first `when` block; `e102ad30b6461c76d2f7888856fd442e70a3d30b` corrected expression wrapping after a subsequent Spotless report. The reverse-counting `when` block retained three missing blank lines, so repeated checks continued to fail at the same formatting gate.
+- Workflow run #41 (head `269e3d4`) confirms the failure is formatting-only at this point; the shared benchmark test task was not reached. Do not characterize this as a speech runtime failure or a failing benchmark unit test.
+- The correction consolidates the remaining source formatting, narrows path filters so documentation-only edits do not start this build, adds a manual `workflow_dispatch` entry point, and refreshes the concurrency group. The PR remains draft and unmerged; no production speech code or Chat Sentinel files are changed.
+- The next required evidence is a successful workflow run that completes both `spotlessCheck` and `:composeApp:desktopTest`. Until then, CI remains unverified.
+
+
+## Android device-test source-set checkpoint (2026-11-18)
+
+- Enabled Android-KMP `androidDeviceTest` in `composeApp/build.gradle.kts` using `withDeviceTestBuilder` and `sourceSetTreeName = "test"`, making shared `commonTest` benchmark code available to the device-test compilation.
+- Added AndroidX Test runner/core/JUnit stable dependencies and a minimal instrumentation smoke test under `composeApp/src/androidDeviceTest`.
+- Updated the benchmark CI workflow to compile the Android device-test Kotlin source set in addition to formatting and desktop benchmark tests. CI installs Android SDK platform 37 for this compile.
+- This checkpoint proves configuration and compilation only after CI succeeds; the full local corpus/model runner and Galaxy A36 execution remain pending. No production speech code or model assets were changed.
+
+- CI run #43 (`44270376677`) failed during Android SDK setup before Gradle execution because the setup action received the SDK package list as one semicolon-delimited token. Corrected the workflow to pass `platform-tools` and `platforms;android-37` as separate lines; rerun required before treating device-test compilation as verified.
+
+- CI run #44 (`44270522981`) was superseded/cancelled by the newer PR synchronization before Gradle ran. CI run #45 (`44270571690`) also failed before Gradle: `setup-android` treats its `packages` input as a space-separated list, not a multiline list. Corrected to `packages: 'platform-tools platforms;android-37'`; a further CI run is needed to verify the Android compile task.
+
+- CI run #47 (`44270722396`) confirmed the package list is now parsed correctly, but Google publishes API 37 as `platforms;android-37.0` (not `platforms;android-37`). The workflow is pinned to `platforms;android-37.0` and `build-tools;37.0.0` for the compileSdk 37 project. This SDK setup must pass before Gradle compilation can be assessed.
+
+- CI run #48 (`44270849746`) reached Gradle but failed during Kotlin DSL script compilation: the generated `androidDeviceTest` accessor is not available at script compile time for this dynamically opted-in source set. Switched dependency configuration to `getByName("androidDeviceTest")`, retaining the documented `withDeviceTestBuilder` opt-in. This is a targeted DSL accessor fix; rerun must establish whether source-set creation, dependency resolution, and the compile task are correct.
+
+
+- CI run #49 (`44271620805`, commit `c3ee531`) confirmed that Android SDK setup and Gradle Kotlin DSL configuration now pass. The run failed only at task selection because the workflow called the nonexistent `:composeApp:compileAndroidDeviceTestKotlinAndroid` task. Official Android-KMP documentation identifies the compilation as `deviceTest` and exposes its `compileTaskProvider`; added a stable `:composeApp:compileAndroidDeviceTestSources` task that depends directly on that provider, and updated CI to call the stable entry point. References: [Android-KMP compilation/task API](https://developer.android.com/kotlin/multiplatform/kmp-integration), [Kotlin compilation API](https://kotlinlang.org/api/kotlin-gradle-plugin/kotlin-gradle-plugin-api/org.jetbrains.kotlin.gradle.plugin/-kotlin-compilation/).
+- The next CI run must verify that this alias configures, that the Android device-test Kotlin source compiles, and that formatting plus desktop tests remain green. This still does not execute instrumentation tests on the Galaxy A36; device execution and the corpus runner remain future milestones.
+
+
+- CI run #50 (`44272514844`, commit `8b86f73`) exposed an important naming collision: the Android Gradle plugin already registers `:composeApp:compileAndroidDeviceTestSources`, so an attempted custom task alias with that name prevented project configuration. Removed the unnecessary alias and now call the plugin-provided task directly. This exact task is used in AndroidX's own build verification commands, confirming the task name independently of Kotlin task-name conventions: [AndroidX build example](https://android.googlesource.com/platform/frameworks/support/+/2e5cb2f061e1a5c634c65f8485c0c7f8c26fcd56). The source-set opt-in and `getByName("androidDeviceTest")` dependency configuration remain unchanged.
+- Next verification must establish that the built-in task compiles the Android device-test sources alongside Spotless and desktop tests. This remains compile-only CI evidence; it does not execute instrumentation on the Galaxy A36.
