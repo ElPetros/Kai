@@ -1,13 +1,6 @@
 name: Speech Benchmark Core Tests
 
 on:
-  push:
-    branches:
-      - feature/speech-benchmark-harness
-    paths:
-      - "composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/speechbenchmark/**"
-      - "docs/speech-benchmark-harness.md"
-      - ".github/workflows/speech-benchmark-core.yml"
   pull_request:
     branches:
       - feature/offline-speech-input
@@ -15,6 +8,10 @@ on:
       - "composeApp/src/commonTest/kotlin/com/inspiredandroid/kai/speechbenchmark/**"
       - "docs/speech-benchmark-harness.md"
       - ".github/workflows/speech-benchmark-core.yml"
+
+concurrency:
+  group: speech-benchmark-core-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
