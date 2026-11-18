@@ -18,13 +18,13 @@ Keep the current quantized Moonshine v2 Tiny English integration as the function
 
 ## Candidate A — Moonshine v2 Base English
 
-- Model: quantized Moonshine v2 Base English, using the same sherpa-onnx Moonshine runtime family as the current Tiny baseline.
+- Model: quantized Moonshine v2 Base English, archive `sherpa-onnx-moonshine-base-en-quantized-2026-02-27.tar.bz2`, using the same sherpa-onnx Moonshine runtime family as the current Tiny baseline.
 - The official Moonshine model catalogue lists English Base as MIT-licensed and reports a quantized package around 135 MB, compared with the current Tiny package around 43 MiB. The larger decoder/model footprint is a real device-cost risk, not an automatic quality win.
 - The sherpa-onnx v2.0.1 Kotlin API exposes the Moonshine v2 `encoder` and `mergedDecoder` fields, matching the model's two-file runtime layout.
 - This is a same-family size/accuracy challenger, not an independent architecture comparison. Verify exact archive size, SHA-256, license notice, and load/runtime behavior on the Galaxy A36 before benchmarking.
 - Do not change the installed Tiny baseline or the user-facing default while evaluating Base.
 
-## Candidate
+## Candidate B — Zipformer GigaSpeech (license hold)
 
 - Model family: sherpa-onnx Zipformer, GigaSpeech-trained English offline transducer.
 - Upstream model identifier: `sherpa-onnx-zipformer-gigaspeech-2023-12-12`.
