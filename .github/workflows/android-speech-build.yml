@@ -1,6 +1,6 @@
 name: Android Speech Build
 
-# Keep workflow-only maintenance changes eligible for branch-push validation.
+# Validate isolated speech changes on fix-branch pushes and PR updates.
 
 on:
   push:
