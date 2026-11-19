@@ -4,6 +4,8 @@ Prepared 2026-11-19 by EL and ChatGPT.
 
 Start here:
 
+0. [Submit to Simon's repository](upstream-submission-instructions.md) — the prepared comparison link and exact pull-request text. The only remaining step is the GitHub UI submission because the connected integration cannot create a PR in Simon's repository.
+
 1. [Maintainer handoff report](kai-offline-speech-input-handoff-2026-11-19.md) — project summary, build evidence, device-test results, PR boundaries, and the decision requested from Simon.
 2. [Safe reconnection list](kai-development-connection-safe-list-2026-11-19.md) — repository, Codespaces, GitHub CLI, Termux, Debian, wireless ADB, build command, and package identity. Contains no credentials or one-time codes.
 3. [Architecture and workflow diagrams](kai-offline-speech-architecture-2026-11-19.md) — speech pipeline and contributor-to-maintainer handoff map.
