@@ -27,6 +27,40 @@ class SpeechTextInsertionTest {
     }
 
     @Test
+    fun vadPaddingPreservesOnsetsAndMergesNearbySpeechRegions() {
+        val padded = paddedSpeechRanges(
+            regions = listOf(SpeechSampleRange(1_000, 2_000), SpeechSampleRange(2_500, 3_000)),
+            totalSamples = 10_000,
+            preRollSamples = 500,
+            postRollSamples = 500,
+        )
+        assertEquals(listOf(SpeechSampleRange(500, 3_500)), padded)
+    }
+
+    @Test
+    fun vadRegionsAreClampedToCapturedAudio() {
+        val padded = paddedSpeechRanges(
+            regions = listOf(SpeechSampleRange(100, 900)),
+            totalSamples = 1_000,
+            preRollSamples = 500,
+            postRollSamples = 500,
+        )
+        assertEquals(listOf(SpeechSampleRange(0, 1_000)), padded)
+    }
+
+    @Test
+    fun noVadRegionsProduceNoSpeechSamples() {
+        val padded = paddedSpeechRanges(
+            regions = emptyList(),
+            totalSamples = 1_000,
+            preRollSamples = 500,
+            postRollSamples = 500,
+        )
+        assertTrue(padded.isEmpty())
+        assertEquals(0, concatenateSpeechRegions(FloatArray(1_000), padded).size)
+    }
+
+    @Test
     fun automaticSendingRequiresExplicitOptIn() {
         assertFalse(shouldAutoSendSpeechTranscript(false, "", false, false))
         assertTrue(shouldAutoSendSpeechTranscript(true, "", false, false))
