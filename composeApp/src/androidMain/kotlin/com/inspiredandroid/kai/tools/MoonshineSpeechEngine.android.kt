@@ -327,7 +327,10 @@ private fun extractVadSpeech(samples: FloatArray, vadModelFile: File): FloatArra
                 minSilenceDuration = 0.30f,
                 minSpeechDuration = 0.25f,
                 windowSize = VAD_WINDOW_SAMPLES,
-                maxSpeechDuration = 20.0f,
+                // Match the full capture window. Sherpa-ONNX raises its internal
+                // detection threshold after this duration; avoid changing thresholds
+                // midway through a permitted 60-second recording.
+                maxSpeechDuration = MAX_RECORDING_SECONDS.toFloat(),
             ),
             sampleRate = SPEECH_SAMPLE_RATE,
             numThreads = 1,
