@@ -72,6 +72,7 @@ internal class MoonshineModelStore(context: android.content.Context) {
                     expectedBytes = VAD_MODEL_BYTES,
                     expectedSha256 = VAD_MODEL_SHA256,
                 )
+                vadModelFile.delete()
                 if (!partial.renameTo(vadModelFile)) {
                     throw IOException("Could not finish installing the offline speech detector.")
                 }
