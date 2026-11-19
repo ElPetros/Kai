@@ -1,0 +1,101 @@
+name: Offline Speech Input Bug Report
+description: Report a reproducible problem with Kai's Android offline speech input
+title: "[Speech input]: "
+labels: ["bug", "android"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please do not include passwords, tokens, private conversations, or other sensitive information.
+        Audio samples are not required. Only attach an audio sample if you are comfortable sharing it publicly and it contains no private or identifying content.
+  - type: input
+    id: kai_version
+    attributes:
+      label: Kai version / build
+      placeholder: Version name, build number, or APK artifact
+    validations:
+      required: true
+  - type: input
+    id: device_model
+    attributes:
+      label: Android device model
+      placeholder: e.g. Samsung Galaxy A36
+    validations:
+      required: true
+  - type: input
+    id: android_version
+    attributes:
+      label: Android version
+      placeholder: e.g. Android 16
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What actually happened?
+      description: If recognition was incorrect, include the expected words and the actual transcript. Avoid private content.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Kai...
+        2. Tap the microphone...
+        3. Say a short test phrase...
+        4. Stop and observe...
+    validations:
+      required: true
+  - type: dropdown
+    id: speech_condition
+    attributes:
+      label: Speech / audio condition
+      multiple: true
+      options:
+        - Silence
+        - Fan or steady background noise
+        - Quiet speech
+        - Normal speech
+        - Loud speech
+        - Fast speech
+        - Speech with pauses
+        - Clipped beginning
+        - Clipped ending
+        - Long recording
+        - Multiple speakers
+        - Other
+    validations:
+      required: false
+  - type: textarea
+    id: environment
+    attributes:
+      label: Recording environment
+      description: Describe distance from microphone, room/noise conditions, and whether the phone was handheld or placed down. Do not include a precise location.
+    validations:
+      required: false
+  - type: dropdown
+    id: repeatability
+    attributes:
+      label: How often does it happen?
+      options:
+        - Every time
+        - Often
+        - Sometimes
+        - Happened once
+        - Not sure
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Redacted logs / screenshots
+      description: Optional. Remove personal data, tokens, account details, and private conversation content before attaching.
+    validations:
+      required: false
