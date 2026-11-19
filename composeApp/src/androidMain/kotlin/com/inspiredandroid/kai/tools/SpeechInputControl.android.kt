@@ -2,6 +2,7 @@ package com.inspiredandroid.kai.tools
 
 import android.media.AudioRecord
 import android.util.Log
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Stop
