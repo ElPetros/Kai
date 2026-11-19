@@ -284,32 +284,35 @@ internal fun transcribeMoonshineV2(modelDirectory: File, samples: FloatArray): S
     val speechSamples = extractVadSpeech(samples, File(modelDirectory.parentFile, "silero_vad.onnx"))
     if (speechSamples.isEmpty()) return ""
 
-    val modelConfig = OfflineModelConfig(
-        moonshine = OfflineMoonshineModelConfig(
-            encoder = File(modelDirectory, "encoder_model.ort").absolutePath,
-            mergedDecoder = File(modelDirectory, "decoder_model_merged.ort").absolutePath,
-        ),
-        tokens = File(modelDirectory, "tokens.txt").absolutePath,
-        numThreads = 2,
-        provider = "cpu",
-    )
-    val recognizer = OfflineRecognizer(
-        config = OfflineRecognizerConfig(
-            featConfig = FeatureConfig(sampleRate = SPEECH_SAMPLE_RATE, featureDim = 80),
-            modelConfig = modelConfig,
-        ),
-    )
     try {
-        val stream = recognizer.createStream()
+        val modelConfig = OfflineModelConfig(
+            moonshine = OfflineMoonshineModelConfig(
+                encoder = File(modelDirectory, "encoder_model.ort").absolutePath,
+                mergedDecoder = File(modelDirectory, "decoder_model_merged.ort").absolutePath,
+            ),
+            tokens = File(modelDirectory, "tokens.txt").absolutePath,
+            numThreads = 2,
+            provider = "cpu",
+        )
+        val recognizer = OfflineRecognizer(
+            config = OfflineRecognizerConfig(
+                featConfig = FeatureConfig(sampleRate = SPEECH_SAMPLE_RATE, featureDim = 80),
+                modelConfig = modelConfig,
+            ),
+        )
         try {
-            stream.acceptWaveform(speechSamples, sampleRate = SPEECH_SAMPLE_RATE)
-            recognizer.decode(stream)
-            return recognizer.getResult(stream).text.trim()
+            val stream = recognizer.createStream()
+            try {
+                stream.acceptWaveform(speechSamples, sampleRate = SPEECH_SAMPLE_RATE)
+                recognizer.decode(stream)
+                return recognizer.getResult(stream).text.trim()
+            } finally {
+                stream.release()
+            }
         } finally {
-            stream.release()
+            recognizer.release()
         }
     } finally {
-        recognizer.release()
         speechSamples.fill(0.0f)
     }
 }
