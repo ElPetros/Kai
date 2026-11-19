@@ -63,12 +63,15 @@ class PermissionController(internal val permission: AppPermission) {
         permissionResultFlow.value = null
         _permissionRequested.value = true
 
-        val result = withTimeoutOrNull(60.seconds) {
-            permissionResultFlow.first { it != null }
+        return try {
+            withTimeoutOrNull(60.seconds) {
+                permissionResultFlow.first { it != null }
+            } ?: false
+        } finally {
+            // A lifecycle cancellation (for example, leaving the screen while the
+            // system permission UI is active) must not leave the launcher marked pending.
+            _permissionRequested.value = false
         }
-
-        _permissionRequested.value = false
-        return result ?: false
     }
 
     /** Called from Compose when the permission result is received. */

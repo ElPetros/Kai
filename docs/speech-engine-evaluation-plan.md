@@ -1,6 +1,6 @@
-# Kai 9000 Speech Edition — model evaluation plan
+# Deferred: Kai speech-engine evaluation plan
 
-Status: planned; no comparative A36 benchmark has yet been run.
+Status: deferred and out of scope for the microphone-first release. This document is retained as historical planning only. Do not download, integrate, benchmark, or switch to a challenger model as part of the current work. Keep the existing quantized Moonshine v2 Tiny English integration as the only speech engine until the microphone workflow is stable and the user separately authorizes a model evaluation.
 
 ## Decision to make
 
@@ -81,6 +81,6 @@ Moonshine's current model documentation reports quantized Tiny Streaming WER of 
 An independent Android benchmark repository reports results for several sherpa Zipformer variants on a Snapdragon 690 device. Its reported numbers vary by model variant; they are not measurements of Kai's exact candidate on the Galaxy A36. Use them only as motivation to benchmark locally:
 - https://github.com/imedwei/android-asr-benchmark
 
-## Current next action
+## Deferred next action
 
-Prepare a reproducible Android benchmark harness/variant that can load one selected model at a time, consume the fixed clip manifest, write machine-readable per-clip results, and emit aggregate WER/latency/memory summaries. Keep this separate from the user-facing Kai speech flow until the candidate passes the decision gate.
+No benchmark harness or challenger-model integration is part of the current release. Revisit this plan only after the microphone-first workflow has passed device testing and the user explicitly authorizes a separate speech-engine evaluation.

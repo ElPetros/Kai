@@ -63,6 +63,7 @@ import com.inspiredandroid.kai.data.ServiceEntry
 import com.inspiredandroid.kai.data.imageExtensions
 import com.inspiredandroid.kai.skills.SkillManifest
 import com.inspiredandroid.kai.tools.SpeechInputControl
+import com.inspiredandroid.kai.tools.shouldAutoSendSpeechTranscript
 import com.inspiredandroid.kai.tools.VoiceInputTarget
 import com.inspiredandroid.kai.ui.gradientBrush
 import com.inspiredandroid.kai.ui.handCursor
@@ -99,14 +100,33 @@ fun QuestionInput(
     cancel: () -> Unit = {},
     availableServices: ImmutableList<ServiceEntry> = persistentListOf(),
     onSelectService: (String) -> Unit = {},
+    showServiceSelector: Boolean = true,
+    autoSendSpeech: Boolean = false,
     installedSkills: ImmutableList<SkillManifest> = persistentListOf(),
     modifier: Modifier = Modifier,
 ) {
     val latestTextState = rememberUpdatedState(textState)
     val latestOnTextStateChange = rememberUpdatedState(onTextStateChange)
-    val onSpeechTranscript: (String) -> Unit = remember {
+    val latestAsk = rememberUpdatedState(ask)
+    val latestFiles = rememberUpdatedState(files)
+    val latestIsLoading = rememberUpdatedState(isLoading)
+    val onSpeechTranscript: (String) -> Unit = remember(autoSendSpeech) {
         { transcript ->
-            latestOnTextStateChange.value(insertTranscript(latestTextState.value, transcript))
+            val recognizedText = transcript.trim()
+            if (recognizedText.isNotEmpty()) {
+                val currentDraft = latestTextState.value
+                val canSendAutomatically = shouldAutoSendSpeechTranscript(
+                    enabled = autoSendSpeech,
+                    currentDraft = currentDraft.text,
+                    hasAttachments = latestFiles.value.isNotEmpty(),
+                    isLoading = latestIsLoading.value,
+                )
+                if (canSendAutomatically) {
+                    latestAsk.value(recognizedText)
+                } else {
+                    latestOnTextStateChange.value(insertTranscript(currentDraft, recognizedText))
+                }
+            }
         }
     }
 
@@ -256,7 +276,7 @@ fun QuestionInput(
                     modifier = Modifier.padding(end = 7.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    if (availableServices.size > 1) {
+                    if (showServiceSelector && availableServices.size > 1) {
                         ServiceSelector(
                             services = availableServices,
                             onSelectService = onSelectService,
