@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -16,6 +17,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -69,6 +73,8 @@ actual fun SpeechInputControl(
 
     val startDescription = stringResource(Res.string.speech_input_start)
     val stopDescription = stringResource(Res.string.speech_input_stop)
+    val preparingDescription = stringResource(Res.string.speech_input_preparing)
+    val transcribingDescription = stringResource(Res.string.speech_input_transcribing)
 
     fun stopRecording() {
         activeStopRequest.get()?.set(true)
@@ -96,9 +102,11 @@ actual fun SpeechInputControl(
         }
     }
 
+    val isBusy = state == SpeechInputState.Preparing || state == SpeechInputState.Transcribing
+
     IconButton(
         modifier = modifier,
-        enabled = state != SpeechInputState.Preparing && state != SpeechInputState.Transcribing,
+        enabled = !isBusy,
         onClick = {
             if (state == SpeechInputState.Recording) {
                 stopRecording()
@@ -134,7 +142,12 @@ actual fun SpeechInputControl(
                         voiceSession = acquiredSession
 
                         if (!modelStore.isInstalled()) {
+                            // First use installs the verified model before recording can begin.
+                            // Keep the control visibly busy so the disabled mic is not mistaken
+                            // for an unresponsive button during this network operation.
+                            Log.i("SpeechInputControl", "Installing verified offline speech model")
                             modelStore.ensureInstalled()
+                            Log.i("SpeechInputControl", "Offline speech model installation complete")
                             state = SpeechInputState.Ready
                             return@launch
                         }
@@ -195,14 +208,29 @@ actual fun SpeechInputControl(
             }
         },
     ) {
-        Icon(
-            imageVector = if (state == SpeechInputState.Recording) Icons.Filled.Stop else Icons.Filled.Mic,
-            contentDescription = if (state == SpeechInputState.Recording) stopDescription else startDescription,
-            tint = if (state == SpeechInputState.Recording || state == SpeechInputState.Error) {
-                MaterialTheme.colorScheme.error
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            },
-        )
+        if (isBusy) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(20.dp)
+                    .semantics {
+                        contentDescription = if (state == SpeechInputState.Preparing) {
+                            preparingDescription
+                        } else {
+                            transcribingDescription
+                        }
+                    },
+                strokeWidth = 2.dp,
+            )
+        } else {
+            Icon(
+                imageVector = if (state == SpeechInputState.Recording) Icons.Filled.Stop else Icons.Filled.Mic,
+                contentDescription = if (state == SpeechInputState.Recording) stopDescription else startDescription,
+                tint = if (state == SpeechInputState.Recording || state == SpeechInputState.Error) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+            )
+        }
     }
 }
