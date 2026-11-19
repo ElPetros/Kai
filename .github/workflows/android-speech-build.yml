@@ -1,5 +1,7 @@
 name: Android Speech Build
 
+# Keep workflow-only maintenance changes eligible for pull-request validation.
+
 on:
   pull_request:
     branches:
