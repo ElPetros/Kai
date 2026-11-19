@@ -142,12 +142,12 @@ actual fun SpeechInputControl(
                         }
                         voiceSession = acquiredSession
 
-                        if (!modelStore.isInstalled()) {
+                        if (!modelStore.isFullyInstalled()) {
                             // First use installs the verified model before recording can begin.
                             // Keep the control visibly busy so the disabled mic is not mistaken
                             // for an unresponsive button during this network operation.
                             Log.i("SpeechInputControl", "Installing verified offline speech model")
-                            modelStore.ensureInstalled()
+                            modelStore.ensureAllInstalled()
                             Log.i("SpeechInputControl", "Offline speech model installation complete")
                             state = SpeechInputState.Ready
                             return@launch
