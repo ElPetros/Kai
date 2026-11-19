@@ -66,11 +66,12 @@ jobs:
       - name: Assemble installable test APK, actual Kai release variant, and shared tests
         run: ./gradlew :androidApp:assembleFossDebug :androidApp:assembleFossRelease :composeApp:desktopTest --no-daemon --stacktrace
 
-      - name: Upload isolated Speech Test debug APK
+      - name: Upload Kai Android debug and release APKs
         uses: actions/upload-artifact@v4
         with:
           name: kai-android-validation-apks
           path: |
             androidApp/build/outputs/apk/foss/debug/*.apk
+            androidApp/build/outputs/apk/foss/release/*.apk
           if-no-files-found: error
           retention-days: 7
