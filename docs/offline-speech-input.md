@@ -33,6 +33,8 @@ The sherpa-onnx Android AAR is a multi-ABI package (approximately 47.2 MB in the
 
 - Detector: Silero VAD ONNX, distributed by sherpa-onnx.
 - Model file: `silero_vad.onnx` (643,854 bytes).
+- Model choice: retain the standard 643,854-byte export. The smaller 208 KB int8 export is not substituted unless A36 testing proves it preserves quiet-speech detection.
+- Model license: MIT; the full Silero Team notice is included at [`docs/licenses/SILERO-VAD-MIT.txt`](licenses/SILERO-VAD-MIT.txt).
 - Pinned SHA-256: `9e2449e1087496d8d4caba907f23e0bd3f78d91fa552479bb9c23ac09cbb1fd6`.
 - Upstream release: [sherpa-onnx asr-models](https://github.com/k2-fsa/sherpa-onnx/releases/tag/asr-models).
 - Kotlin API: `Vad`, `VadModelConfig`, and `SileroVadModelConfig` from the existing sherpa-onnx 2.0.1 dependency.
