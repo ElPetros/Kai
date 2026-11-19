@@ -49,6 +49,16 @@ class SpeechTextInsertionTest {
     }
 
     @Test
+    fun concatenatesOnlyDetectedSpeechRegionsInOrder() {
+        val samples = floatArrayOf(0f, 1f, 2f, 3f, 4f, 5f)
+        val output = concatenateSpeechRegions(
+            samples,
+            listOf(SpeechSampleRange(1, 3), SpeechSampleRange(4, 6)),
+        )
+        assertEquals(listOf(1f, 2f, 4f, 5f), output.toList())
+    }
+
+    @Test
     fun noVadRegionsProduceNoSpeechSamples() {
         val padded = paddedSpeechRanges(
             regions = emptyList(),
