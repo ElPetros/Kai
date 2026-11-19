@@ -3,6 +3,16 @@ name: Android Speech Build
 # Keep workflow-only maintenance changes eligible for pull-request validation.
 
 on:
+  push:
+    branches:
+      - "fix/**"
+    paths:
+      - "androidApp/**"
+      - "composeApp/**"
+      - "gradle/**"
+      - "settings.gradle.kts"
+      - "build.gradle.kts"
+      - ".github/workflows/android-speech-build.yml"
   pull_request:
     branches:
       - feature/offline-speech-input
