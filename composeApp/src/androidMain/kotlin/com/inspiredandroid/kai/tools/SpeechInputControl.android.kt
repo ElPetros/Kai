@@ -27,8 +27,10 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.inspiredandroid.kai.permissionQualifier
 import kai.composeapp.generated.resources.Res
+import kai.composeapp.generated.resources.speech_input_preparing
 import kai.composeapp.generated.resources.speech_input_start
 import kai.composeapp.generated.resources.speech_input_stop
+import kai.composeapp.generated.resources.speech_input_transcribing
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
