@@ -5,8 +5,8 @@
 The first speech-input implementation is Android-only and English-only. It is a deliberate, foreground-only workflow:
 
 1. The user taps the microphone.
-2. On first use, Kai requests microphone permission and downloads the speech model.
-3. The user taps the microphone again to start recording, then taps Stop.
+2. On first use, Kai requests microphone permission and downloads the speech model. The mic control shows an indeterminate progress indicator while permission/model preparation or transcription is in progress; it is intentionally disabled during those operations.
+3. After first-use model installation completes, the control returns to its ready microphone state. The user taps it again to start recording, then taps Stop.
 4. Kai transcribes locally and inserts the result at the composer's current selection by default.
 5. The user reviews and edits the text before using Kai's existing Send control.
 
