@@ -1,7 +1,7 @@
 name: Offline Speech Input Bug Report
 description: Report a reproducible problem with Kai's Android offline speech input
 title: "[Speech input]: "
-labels: ["bug", "android"]
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
